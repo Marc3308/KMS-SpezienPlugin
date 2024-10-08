@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static me.marc3308.rassensystem.ItemCreater.getcon;
+
 public class ondamage implements Listener {
 
     //public static HashMap<Player, Long> lastdmghit = new HashMap<>();
@@ -53,17 +55,17 @@ public class ondamage implements Listener {
 
         Player p=e.getDamager() instanceof Player ? (Player) e.getDamager() : (Player) ((Projectile) e.getDamager()).getShooter();
         p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), "lastdmghit"), PersistentDataType.LONG,System.currentTimeMillis());
-        //lastdmghit.put(p,System.currentTimeMillis());
-        //put the player in the hash
-        //lastdmghit.put(p,System.currentTimeMillis());
+
+        //schlag kosten
+        if(p.getInventory().getItemInMainHand()!=null)e.setDamage(schlagmitwaffe(p,e.getDamage()));
 
         //wenn du damage machst
         iskamp(p,e.getDamage());
 
         //get all werte von grund und klasse
-        double alldmg = (e.getDamage() *((ItemCreater.getcon(2).getDouble("Grundwerte"+".waffenschaden")+p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "waffenschaden"), PersistentDataType.DOUBLE))/100));
-        double allcrit = ((ItemCreater.getcon(2).getDouble("Grundwerte"+".waffencritdmg")+p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "waffencritdmg"), PersistentDataType.DOUBLE))/100);
-        double allcritchange = (ItemCreater.getcon(2).getDouble("Grundwerte"+".waffencritchance")+p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "waffencritchance"), PersistentDataType.DOUBLE));
+        double alldmg = (e.getDamage() *((getcon(2).getDouble("Grundwerte"+".waffenschaden")+p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "waffenschaden"), PersistentDataType.DOUBLE))/100));
+        double allcrit = ((getcon(2).getDouble("Grundwerte"+".waffencritdmg")+p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "waffencritdmg"), PersistentDataType.DOUBLE))/100);
+        double allcritchange = (getcon(2).getDouble("Grundwerte"+".waffencritchance")+p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "waffencritchance"), PersistentDataType.DOUBLE));
 
         double ran = ThreadLocalRandom.current().nextDouble(1,101);
 
@@ -127,16 +129,16 @@ public class ondamage implements Listener {
                         int k=0;
                         while (k<1000){
                             k++;
-                            if(ItemCreater.getcon(2).getString(prasse+".resistzenzen"+"."+k)==null)break;
-                            String resi=ItemCreater.getcon(2).getString(prasse+".resistzenzen"+"."+k);
+                            if(getcon(2).getString(prasse+".resistzenzen"+"."+k)==null)break;
+                            String resi= getcon(2).getString(prasse+".resistzenzen"+"."+k);
                             alldmg/=2;
                         }
 
                         k=0;
                         while (k<1000){
                             k++;
-                            if(ItemCreater.getcon(2).getString(prasse+".schwächen"+"."+k)==null)break;
-                            String resi=ItemCreater.getcon(2).getString(prasse+".schwächen"+"."+k);
+                            if(getcon(2).getString(prasse+".schwächen"+"."+k)==null)break;
+                            String resi= getcon(2).getString(prasse+".schwächen"+"."+k);
                             alldmg*=2;
                         }
                     }
@@ -172,7 +174,7 @@ public class ondamage implements Listener {
         if(e.getEntity() instanceof Player && coslist.contains(e.getCause())){
             Player p=(Player) e.getEntity();
             p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), "lastdmghit"), PersistentDataType.LONG,System.currentTimeMillis());
-            //lastdmghit.put((Player) e.getEntity(),System.currentTimeMillis());
+            if(p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "infight"), PersistentDataType.DOUBLE))e.setDamage(e.getDamage()/getcon(2).getDouble("Grundkosten"+".Schadenimkampf"));
             iskamp(p,e.getDamage());
         }
     }
@@ -186,7 +188,7 @@ public class ondamage implements Listener {
         p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), "fightdmg"), PersistentDataType.DOUBLE,gerade);
 
         //when in fight
-        if(gerade>=ItemCreater.getcon(2).getInt("Grundwerte"+".kampfstartschaden")){
+        if(gerade>= getcon(2).getInt("Grundwerte"+".kampfstartschaden")){
             p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), "fightdmg"), PersistentDataType.DOUBLE,0.0);
             p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), "infight"), PersistentDataType.DOUBLE,0.0);
 
@@ -195,7 +197,7 @@ public class ondamage implements Listener {
                 @Override
                 public void run() {
                     if(!p.isOnline()
-                            || (System.currentTimeMillis()-p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "lastdmghit"),PersistentDataType.LONG))>(ItemCreater.getcon(2).getInt("Grundwerte"+".kampfende")*1000)
+                            || (System.currentTimeMillis()-p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "lastdmghit"),PersistentDataType.LONG))>(getcon(2).getInt("Grundwerte"+".kampfende")*1000)
                             || !p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "infight"), PersistentDataType.DOUBLE)
                             || p.getHealth()<=0){
                         p.getPersistentDataContainer().remove(new NamespacedKey(Rassensystem.getPlugin(), "infight"));
@@ -222,5 +224,19 @@ public class ondamage implements Listener {
                 return;
             }
         }.runTaskTimer(Rassensystem.getPlugin(),10*20,20);
+    }
+
+    public double schlagmitwaffe(Player p, double restschaden){
+
+        if(getcon(2).get("Grundkosten"+"."+p.getInventory().getItemInMainHand().getType())==null)return restschaden;
+
+        //get kosten
+        double kosten=getcon(2).getDouble("Grundkosten"+"."+p.getInventory().getItemInMainHand().getType());
+
+        if(p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "ausdauernow"), PersistentDataType.DOUBLE)<kosten)return restschaden*(getcon(1).getDouble("Grundkosten"+".Schadenwennkeinausdauer")/100);
+        p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), "ausdauernow"), PersistentDataType.DOUBLE
+                ,p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "ausdauernow"), PersistentDataType.DOUBLE)-kosten);
+
+        return restschaden;
     }
 }

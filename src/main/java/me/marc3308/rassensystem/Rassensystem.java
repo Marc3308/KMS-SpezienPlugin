@@ -313,8 +313,13 @@ public final class Rassensystem extends JavaPlugin implements Listener {
         infos.add("wichtig noch die grundwerte sind die grundwerte jedes spielers auf den dann die boni der klassen und rassen draufgerechnet werden");
 
         //pasivennamensliste
-
         if(rasse.get("Grundwerte")==null){
+
+
+            rasse.set("Grundkosten"+".Schadenimkampf",90.0);
+            rasse.set("Grundkosten"+".Schadenwennkeinausdauer",90.0);
+            rasse.set("Grundkosten"+".DIAMOND_SWORD",1.0);
+
 
             rasse.set("Grundwerte"+".leben",20.0);
             rasse.set("Grundwerte"+".lebenreg",2.0);

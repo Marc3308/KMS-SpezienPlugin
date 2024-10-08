@@ -1,0 +1,10 @@
+name: Rassensystem
+version: '1.21.1'
+main: me.marc3308.rassensystem.Rassensystem
+api-version: 1.19
+
+commands:
+  spezienwahl:
+    description: you are beter then everybody
+  giverasse:
+    description: gives you the raze

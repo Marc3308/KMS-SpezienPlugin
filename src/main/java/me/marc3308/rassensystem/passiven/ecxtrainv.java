@@ -5,6 +5,7 @@ import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -30,7 +31,7 @@ public class ecxtrainv implements Listener {
         if(p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "extrainv"), PersistentDataType.BOOLEAN))return;
         if(!p.getGameMode().equals(GameMode.SURVIVAL))return;
         if(!p.getInventory().getItemInMainHand().getType().equals(Material.AIR))return;
-        if(e.getAction().isLeftClick())return;
+        if(!e.getAction().equals(Action.RIGHT_CLICK_BLOCK))return;
         if(!p.isSneaking())return;
 
         //check if rasse has passive
@@ -79,7 +80,7 @@ public class ecxtrainv implements Listener {
 
     @EventHandler
     public void ondeath(PlayerDeathEvent e){
-        Player p=e.getPlayer();
+        Player p=e.getEntity();
 
         for (int i=0; i<getcon(9).getInt("extrainv"+".Größe");i++){
             if(p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "extrainv"+i), PersistentDataType.STRING)){
@@ -92,10 +93,6 @@ public class ecxtrainv implements Listener {
             }
         }
     }
-
-
-
-
 
     // Convert an ItemStack to a Base64 String (serialization)
     public String itemStackToBase64(ItemStack item) throws IOException {

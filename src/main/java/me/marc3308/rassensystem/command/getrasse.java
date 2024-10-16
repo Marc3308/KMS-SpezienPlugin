@@ -7,24 +7,23 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 public class getrasse implements CommandExecutor {
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(CommandSender commandSender,Command command,String s,String[] strings) {
 
-        if(!(sender instanceof Player))return false;
-        Player p=(Player) sender;
+        if(!(commandSender instanceof Player))return false;
+        Player p=(Player) commandSender;
         if(!p.hasPermission("parteleitung"))return false;
 
-        if(args.length==2){
-            Player pp= Bukkit.getPlayer(args[1]);
+        if(strings.length==2){
+            Player pp= Bukkit.getPlayer(strings[1]);
             if(pp==null){
                 p.sendMessage(ChatColor.RED+"Dieser Spieler existiert nicht");
                 return false;
             }
-            p.getWorld().dropItemNaturally(p.getLocation(), ItemCreater.itcreater(args[0],pp));
+            p.getWorld().dropItemNaturally(p.getLocation(), ItemCreater.itcreater(strings[0],pp));
         } else {
             p.sendMessage(ChatColor.GREEN+"----------------------------------");
             p.sendMessage(ChatColor.GREEN+"Bitte versuche /giverasse %rasse% %spielerbind%");

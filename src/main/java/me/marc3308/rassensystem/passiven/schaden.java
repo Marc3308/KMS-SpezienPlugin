@@ -4,12 +4,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.Vector;
 
 import static me.marc3308.rassensystem.ItemCreater.getcon;
 import static me.marc3308.rassensystem.ItemCreater.isapassive;
 
-public class töten implements Listener {
+public class schaden implements Listener {
 
     @EventHandler
     public void ontot(EntityDamageByEntityEvent e){
@@ -37,7 +38,22 @@ public class töten implements Listener {
         Vector reducedKnockback = knockback.multiply(getcon(9).getInt("wenigruckstos"+".Stärke")/100.0);  // Adjust this factor to reduce more or less
         // Set the player's new velocity
         player.setVelocity(reducedKnockback);
+    }
+    @EventHandler
+    public void onfall(EntityDamageEvent e){
+        if(!e.getCause().equals(EntityDamageEvent.DamageCause.FALL))return;
+        if(!(e.getEntity() instanceof Player))return;
+        Player p= (Player) e.getEntity();
+        if(!isapassive(p,"wenigfalschaden"));
+        e.setDamage((e.getDamage()/100.0)*getcon(9).getInt("wenigfalschaden"+".Schadeninporzent"));
+    }
 
-
+    @EventHandler
+    public void ongift(EntityDamageEvent e){
+        if(!e.getCause().equals(EntityDamageEvent.DamageCause.POISON))return;
+        if(!(e.getEntity() instanceof Player))return;
+        Player p= (Player) e.getEntity();
+        if(!isapassive(p,"wenigergift"));
+        e.setDamage((e.getDamage()/100.0)*getcon(9).getInt("wenigergift"+".Schadeninporzent"));
     }
 }

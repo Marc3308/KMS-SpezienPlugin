@@ -174,7 +174,7 @@ public class ondamage implements Listener {
         if(e.getEntity() instanceof Player && coslist.contains(e.getCause())){
             Player p=(Player) e.getEntity();
             p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), "lastdmghit"), PersistentDataType.LONG,System.currentTimeMillis());
-            if(p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "infight"), PersistentDataType.DOUBLE))e.setDamage(e.getDamage()/getcon(2).getDouble("Grundkosten"+".Schadenimkampf"));
+            if(p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "infight"), PersistentDataType.DOUBLE))e.setDamage(e.getDamage()*(getcon(2).getDouble("Grundkosten"+".Schadenimkampf")/100));
             iskamp(p,e.getDamage());
         }
     }

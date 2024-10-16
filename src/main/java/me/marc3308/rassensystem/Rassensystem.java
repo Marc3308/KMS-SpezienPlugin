@@ -292,14 +292,17 @@ public final class Rassensystem extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(new ecxtrainv(),this);
         Bukkit.getPluginManager().registerEvents(new mobdinge(),this);
         Bukkit.getPluginManager().registerEvents(new meditation(),this);
-        Bukkit.getPluginManager().registerEvents(new töten(),this);
+        Bukkit.getPluginManager().registerEvents(new schaden(),this);
         Bukkit.getPluginManager().registerEvents(new onbewegen(),this);
         Bukkit.getPluginManager().registerEvents(new selbstsheren(),this);
+        Bukkit.getPluginManager().registerEvents(new gerausche(),this);
+        Bukkit.getPluginManager().registerEvents(new Hochelfen(),this);
 
 
         //rassenpassiven
         Bukkit.getPluginManager().registerEvents(new flugpassiven(),this);
         Bukkit.getPluginManager().registerEvents(new andersessen(),this);
+        Bukkit.getPluginManager().registerEvents(new xpgain(),this);
 
         getCommand("spezienwahl").setExecutor(new rassencommand());
         getCommand("giverasse").setExecutor(new getrasse());
@@ -587,6 +590,34 @@ public final class Rassensystem extends JavaPlugin implements Listener {
             passive.set("highjump"+".EffectStärke",5);
             passive.set("highjump"+".EffectDauer",5);
             passive.set("highjump"+".Custemmoddeldatataken",5);
+
+            passive.set("wenigfalschaden"+".AnzeigeName","wenigfalschaden");
+            passive.set("wenigfalschaden"+".Beschreibung","wenigfalschaden mal");
+            passive.set("wenigfalschaden"+".Block","PAPER");
+            passive.set("wenigfalschaden"+".Schadeninporzent",50);
+            passive.set("wenigfalschaden"+".Custemmoddeldatataken",5);
+
+            passive.set("wenigergift"+".AnzeigeName","wenigergift");
+            passive.set("wenigergift"+".Beschreibung","wenigergift mal");
+            passive.set("wenigergift"+".Block","PAPER");
+            passive.set("wenigergift"+".Schadeninporzent",50);
+            passive.set("wenigergift"+".Custemmoddeldatataken",5);
+
+            passive.set("noabbausound"+".AnzeigeName","noabbausound");
+            passive.set("noabbausound"+".Beschreibung","noabbausound mal");
+            passive.set("noabbausound"+".Block","PAPER");
+            passive.set("noabbausound"+".Custemmoddeldatataken",5);
+
+            passive.set("noaufsammelsound"+".AnzeigeName","noaufsammelsound");
+            passive.set("noaufsammelsound"+".Beschreibung","noaufsammelsound mal");
+            passive.set("noaufsammelsound"+".Block","PAPER");
+            passive.set("noaufsammelsound"+".Custemmoddeldatataken",5);
+
+            passive.set("Hochelfenunsichtbar"+".AnzeigeName","Hochelfenunsichtbar");
+            passive.set("Hochelfenunsichtbar"+".Beschreibung","Hochelfenunsichtbar mal");
+            passive.set("Hochelfenunsichtbar"+".Block","PAPER");
+            passive.set("Hochelfenunsichtbar"+".Kosten",3);
+            passive.set("Hochelfenunsichtbar"+".Custemmoddeldatataken",5);
         }
 
         try {

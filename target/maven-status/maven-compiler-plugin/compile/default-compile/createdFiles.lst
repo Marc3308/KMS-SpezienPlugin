@@ -1,13 +1,14 @@
 me\marc3308\rassensystem\eventlisteners\gui.class
+me\marc3308\rassensystem\passiven\Hochelfen.class
 me\marc3308\rassensystem\passiven\meditation.class
 me\marc3308\rassensystem\passiven\selbstsheren.class
-me\marc3308\rassensystem\passiven\töten.class
 me\marc3308\rassensystem\eventlisteners\infight.class
 me\marc3308\rassensystem\passiven\andersessen.class
 me\marc3308\rassensystem\passiven\onbewegen$1.class
 me\marc3308\rassensystem\eventlisteners\howtorasse\itemclickevent.class
 me\marc3308\rassensystem\ItemCreater.class
 me\marc3308\rassensystem\passiven\onbewegen.class
+me\marc3308\rassensystem\passiven\gerausche.class
 me\marc3308\rassensystem\passiven\flugpassiven.class
 me\marc3308\rassensystem\eventlisteners\ondamage$3.class
 me\marc3308\rassensystem\command\getrasse.class
@@ -22,4 +23,5 @@ me\marc3308\rassensystem\passiven\meditation$1.class
 me\marc3308\rassensystem\eventlisteners\Joinding.class
 me\marc3308\rassensystem\passiven\mobdinge.class
 me\marc3308\rassensystem\Rassensystem$1.class
+me\marc3308\rassensystem\passiven\schaden.class
 me\marc3308\rassensystem\eventlisteners\ondamage.class

@@ -1,13 +1,18 @@
 package me.marc3308.rassensystem;
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -110,5 +115,53 @@ public class ItemCreater {
         double Ausdauemax = (ausdauergrund + p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "ausdauer"), PersistentDataType.DOUBLE)) * ((100 + Ausdauerrasse) / 100);
         double Manamax = (managrund + p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "mana"), PersistentDataType.DOUBLE)) * ((100 + Manarasse) / 100);
         return Ausdauemax>Manamax ? "ausdauer" : "mana";
+    }
+
+    public static void bar(Player p, String kostenwert, String passivname){
+
+        //setup bar
+        BossBar bar= Bukkit.createBossBar(passivname, BarColor.GREEN, BarStyle.SEGMENTED_10);
+        bar.setProgress(1.0);
+        bar.addPlayer(p);
+
+        //get max wert
+        int wertgrund= getcon(2).getInt("Grundwerte"+"."+kostenwert);
+        double wertrasse=getcon(2).getDouble(p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(),"rasse"), PersistentDataType.STRING)+"."+kostenwert);
+        double wertmax = (wertgrund + p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), kostenwert), PersistentDataType.DOUBLE)) * ((100 + wertrasse) / 100);
+
+        p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), "bar"), PersistentDataType.BOOLEAN,true);
+
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+
+                if(!p.isOnline() || !p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "bar"), PersistentDataType.BOOLEAN)){
+                    bar.setVisible(false);
+                    bar.removePlayer(p);
+                }
+
+                double kostenwertnow=p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), kostenwert+"now"), PersistentDataType.DOUBLE);
+
+
+                bar.setColor(kostenwertnow<=((wertmax/100.0)*33) ? BarColor.RED
+                        : kostenwertnow<=((wertmax/100.0)*66) ? BarColor.YELLOW
+                        : BarColor.GREEN);
+                bar.setProgress(kostenwertnow<=((wertmax/100.0)*10) ? 0.1
+                        : kostenwertnow<=((wertmax/100.0)*20) ? 0.2
+                        : kostenwertnow<=((wertmax/100.0)*30) ? 0.3
+                        : kostenwertnow<=((wertmax/100.0)*40) ? 0.4
+                        : kostenwertnow<=((wertmax/100.0)*50) ? 0.5
+                        : kostenwertnow<=((wertmax/100.0)*60) ? 0.6
+                        : kostenwertnow<=((wertmax/100.0)*70) ? 0.7
+                        : kostenwertnow<=((wertmax/100.0)*80) ? 0.8
+                        : kostenwertnow<=((wertmax/100.0)*90) ? 0.9
+                        : 1.0);
+
+            }
+        }.runTaskTimer(Rassensystem.getPlugin(),0,20);
+    }
+
+    public static void barremove(Player p){
+        p.getPersistentDataContainer().remove(new NamespacedKey(Rassensystem.getPlugin(), "bar"));
     }
 }

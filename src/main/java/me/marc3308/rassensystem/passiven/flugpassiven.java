@@ -72,6 +72,7 @@ public class flugpassiven implements Listener {
         if (!p.isOnGround()) {
 
             p.setAllowFlight(true);
+            bar(p,kostenrechnungswert(p),getcon(9).getString(rasse+".AnzeigeName"));
 
             new BukkitRunnable(){
                 @Override
@@ -82,6 +83,7 @@ public class flugpassiven implements Listener {
                             || p.getPersistentDataContainer().has(new NamespacedKey("arbeitundleben", "iscasting"), PersistentDataType.STRING)
                             || p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "infight"), PersistentDataType.DOUBLE)
                             || (rasse.equals("fledermauschimarenlug") && p.getWorld().getTime()<=12000 && p.getLocation().getBlock().getY()>=p.getWorld().getHighestBlockAt(p.getLocation()).getY())){
+                        barremove(p);
                         p.getPersistentDataContainer().remove(new NamespacedKey(Rassensystem.getPlugin(), "isfly"));
                         p.setGliding(false);
                         p.setAllowFlight(false);
@@ -103,6 +105,7 @@ public class flugpassiven implements Listener {
                     if(kostenwertnow - kosten >0) {
                         p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), kostenwert+"now"), PersistentDataType.DOUBLE,(kostenwertnow-kosten));
                     } else {
+                        barremove(p);
                         p.getPersistentDataContainer().remove(new NamespacedKey(Rassensystem.getPlugin(), "isfly"));
                         p.setGliding(false);
                         p.setAllowFlight(false);

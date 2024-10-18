@@ -613,11 +613,17 @@ public final class Rassensystem extends JavaPlugin implements Listener {
             passive.set("noaufsammelsound"+".Block","PAPER");
             passive.set("noaufsammelsound"+".Custemmoddeldatataken",5);
 
-            passive.set("Hochelfenunsichtbar"+".AnzeigeName","Hochelfenunsichtbar");
-            passive.set("Hochelfenunsichtbar"+".Beschreibung","Hochelfenunsichtbar mal");
-            passive.set("Hochelfenunsichtbar"+".Block","PAPER");
-            passive.set("Hochelfenunsichtbar"+".Kosten",3);
-            passive.set("Hochelfenunsichtbar"+".Custemmoddeldatataken",5);
+            passive.set("hochelfenunsichtbar"+".AnzeigeName","Hochelfenunsichtbar");
+            passive.set("hochelfenunsichtbar"+".Beschreibung","Hochelfenunsichtbar mal");
+            passive.set("hochelfenunsichtbar"+".Block","PAPER");
+            passive.set("hochelfenunsichtbar"+".Kosten",3);
+            passive.set("hochelfenunsichtbar"+".Custemmoddeldatataken",5);
+
+            passive.set("hochelfenunsichtbar"+".AnzeigeName","Hochelfenunsichtbar");
+            passive.set("hochelfenunsichtbar"+".Beschreibung","Hochelfenunsichtbar mal");
+            passive.set("hochelfenunsichtbar"+".Block","PAPER");
+            passive.set("hochelfenunsichtbar"+".Kosten",3);
+            passive.set("hochelfenunsichtbar"+".Custemmoddeldatataken",5);
         }
 
         try {

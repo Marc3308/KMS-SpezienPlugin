@@ -16,9 +16,9 @@ public class gerausche implements Listener {
     public void onblockbreak(BlockBreakEvent e){
         Player p=e.getPlayer();
         if(!isapassive(p,"noabbausound"))return;
-        e.setCancelled(true);
-        e.getBlock().getWorld().setBlockData(e.getBlock().getLocation(), Material.AIR.createBlockData());
-        for(ItemStack it : e.getBlock().getDrops())e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(),it);
+        //e.setCancelled(true);
+        //e.getBlock().getWorld().setBlockData(e.getBlock().getLocation(), Material.AIR.createBlockData());
+        //for(ItemStack it : e.getBlock().getDrops())e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(),it);
 
     }
 

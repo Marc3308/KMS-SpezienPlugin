@@ -127,7 +127,7 @@ public class ItemCreater {
         //get max wert
         int wertgrund= getcon(2).getInt("Grundwerte"+"."+kostenwert);
         double wertrasse=getcon(2).getDouble(p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(),"rasse"), PersistentDataType.STRING)+"."+kostenwert);
-        double wertmax = (wertgrund + p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), kostenwert), PersistentDataType.DOUBLE)) * ((100 + wertrasse) / 100);
+        double wertmax = kostenwert=="leben" ? p.getMaxHealth() : (wertgrund + p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), kostenwert), PersistentDataType.DOUBLE)) * ((100 + wertrasse) / 100);
 
         p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), "bar"), PersistentDataType.BOOLEAN,true);
 
@@ -140,7 +140,7 @@ public class ItemCreater {
                     bar.removePlayer(p);
                 }
 
-                double kostenwertnow=p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), kostenwert+"now"), PersistentDataType.DOUBLE);
+                double kostenwertnow=kostenwert=="leben" ? p.getHealth() : p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), kostenwert+"now"), PersistentDataType.DOUBLE);
 
 
                 bar.setColor(kostenwertnow<=((wertmax/100.0)*33) ? BarColor.RED

@@ -1,10 +1,13 @@
 me\marc3308\rassensystem\eventlisteners\gui.class
+me\marc3308\rassensystem\passiven\Luckeffeckt$1.class
+me\marc3308\rassensystem\passiven\Hochelfen$1.class
 me\marc3308\rassensystem\passiven\Hochelfen.class
 me\marc3308\rassensystem\passiven\meditation.class
 me\marc3308\rassensystem\passiven\selbstsheren.class
 me\marc3308\rassensystem\eventlisteners\infight.class
 me\marc3308\rassensystem\passiven\andersessen.class
 me\marc3308\rassensystem\passiven\onbewegen$1.class
+me\marc3308\rassensystem\ItemCreater$1.class
 me\marc3308\rassensystem\eventlisteners\howtorasse\itemclickevent.class
 me\marc3308\rassensystem\ItemCreater.class
 me\marc3308\rassensystem\passiven\onbewegen.class
@@ -17,6 +20,7 @@ me\marc3308\rassensystem\passiven\flugpassiven$1.class
 me\marc3308\rassensystem\Rassensystem.class
 me\marc3308\rassensystem\command\rassencommand.class
 me\marc3308\rassensystem\eventlisteners\ondamage$1.class
+me\marc3308\rassensystem\passiven\Luckeffeckt.class
 me\marc3308\rassensystem\passiven\xpgain.class
 me\marc3308\rassensystem\eventlisteners\ondamage$2.class
 me\marc3308\rassensystem\passiven\meditation$1.class

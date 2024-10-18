@@ -303,6 +303,7 @@ public final class Rassensystem extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(new flugpassiven(),this);
         Bukkit.getPluginManager().registerEvents(new andersessen(),this);
         Bukkit.getPluginManager().registerEvents(new xpgain(),this);
+        Bukkit.getPluginManager().registerEvents(new Luckeffeckt(),this);
 
         getCommand("spezienwahl").setExecutor(new rassencommand());
         getCommand("giverasse").setExecutor(new getrasse());
@@ -624,6 +625,14 @@ public final class Rassensystem extends JavaPlugin implements Listener {
             passive.set("hochelfenunsichtbar"+".Block","PAPER");
             passive.set("hochelfenunsichtbar"+".Kosten",3);
             passive.set("hochelfenunsichtbar"+".Custemmoddeldatataken",5);
+
+            passive.set("luckpassive"+".AnzeigeName","luckpassive");
+            passive.set("luckpassive"+".Beschreibung","luckpassive mal");
+            passive.set("luckpassive"+".Block","PAPER");
+            passive.set("luckpassive"+".Kosten",3);
+            passive.set("luckpassive"+".Ausweichchancheinprozent",66);
+            passive.set("luckpassive"+".lootingstufe",10);
+            passive.set("luckpassive"+".Custemmoddeldatataken",5);
         }
 
         try {

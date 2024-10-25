@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.util.Base64;
 
 import static me.marc3308.rassensystem.ItemCreater.getcon;
+import static me.marc3308.rassensystem.Rassensystem.plugin;
 
 public class ecxtrainv implements Listener {
 
@@ -92,6 +94,25 @@ public class ecxtrainv implements Listener {
                 }
             }
         }
+    }
+
+    @EventHandler
+    public void ondamage(EntityDamageEvent e){
+        if(!(e.getEntity() instanceof Player))return;
+        Player p= (Player) e.getEntity();
+        if(!p.getPersistentDataContainer().has(new NamespacedKey("klassensysteem", "istko"), PersistentDataType.INTEGER))return;
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            for (int i=0; i<getcon(9).getInt("extrainv"+".Größe");i++){
+                if(p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "extrainv"+i), PersistentDataType.STRING)){
+                    try {
+                        p.getWorld().dropItemNaturally(p.getLocation(),itemStackFromBase64(p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "extrainv"+i), PersistentDataType.STRING)));
+                        p.getPersistentDataContainer().remove(new NamespacedKey(Rassensystem.getPlugin(), "extrainv"+i));
+                    } catch (IOException | ClassNotFoundException es) {
+                        es.printStackTrace();
+                    }
+                }
+            }
+        }, 40L);
     }
 
     // Convert an ItemStack to a Base64 String (serialization)

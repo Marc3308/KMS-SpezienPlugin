@@ -169,8 +169,16 @@ public final class Rassensystem extends JavaPlugin implements Listener {
                         }
                         return;
                     }
-                    if(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) {
+                    if(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)
+                            || p.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "Seelenenergie"), PersistentDataType.INTEGER)<=0) {
                         p.spigot().sendMessage(ChatMessageType.ACTION_BAR,new TextComponent(""));
+                        if(p.getGameMode().equals(GameMode.SURVIVAL)){
+                            p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS,10*20,5,false,false));
+                            p.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS,10*20,0,false,false));
+                            p.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS,10*20,5,false,false));
+                            p.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS,10*20,1,false,false));
+                            p.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE,10*20,0,false,false));
+                        }
                     } else {
 
                         double MaxLeben = (lebengrund + p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "leben"), PersistentDataType.DOUBLE)) * ((100 + Lebenrasse) / 100);

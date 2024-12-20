@@ -8,3 +8,4 @@ commands:
     description: you are beter then everybody
   giverasse:
     description: gives you the raze
+    permission: parteleitung

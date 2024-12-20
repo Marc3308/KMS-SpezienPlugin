@@ -2,6 +2,7 @@ package me.marc3308.rassensystem.eventlisteners;
 
 import me.marc3308.rassensystem.ItemCreater;
 import me.marc3308.rassensystem.Rassensystem;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.*;
@@ -199,6 +200,7 @@ public class ondamage implements Listener {
                     if(!p.isOnline()
                             || (System.currentTimeMillis()-p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "lastdmghit"),PersistentDataType.LONG))>(getcon(2).getInt("Grundwerte"+".kampfende")*1000)
                             || !p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "infight"), PersistentDataType.DOUBLE)
+                            || !p.getGameMode().equals(GameMode.SURVIVAL)
                             || p.getHealth()<=0){
                         p.getPersistentDataContainer().remove(new NamespacedKey(Rassensystem.getPlugin(), "infight"));
                         cancel();

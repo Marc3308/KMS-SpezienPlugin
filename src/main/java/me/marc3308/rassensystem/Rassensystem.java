@@ -170,7 +170,7 @@ public final class Rassensystem extends JavaPlugin implements Listener {
                         return;
                     }
                     if(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)
-                            || p.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "Seelenenergie"), PersistentDataType.INTEGER)<=0) {
+                            || p.getPersistentDataContainer().getOrDefault(new NamespacedKey("klassensysteem", "seelenenergie"), PersistentDataType.INTEGER,0)<=0) {
                         p.spigot().sendMessage(ChatMessageType.ACTION_BAR,new TextComponent(""));
                         if(p.getGameMode().equals(GameMode.SURVIVAL)){
                             p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS,10*20,5,false,false));

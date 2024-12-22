@@ -122,11 +122,11 @@ public class flugpassiven implements Listener {
         Player p=e.getPlayer();
         if(!isapassive(p,"doubeljump"))return;
         e.setCancelled(true);
-        Player player = e.getPlayer();
-        player.setAllowFlight(false);
-        player.setFlying(false);
+        p.setAllowFlight(false);
+        p.setFlying(false);
+        p.setFallDistance(0);
         p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), "isfly"), PersistentDataType.DOUBLE,1.0);
-        player.setVelocity(player.getLocation().getDirection().multiply(getcon(9).getInt("doubeljump"+".Stärke")).setY(0.42));
+        p.setVelocity(p.getLocation().getDirection().multiply(getcon(9).getInt("doubeljump"+".Stärke")).setY(0.42));
         String kostenwert=kostenrechnungswert(p);
 
         double kostenwertnow=p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), kostenwert+"now"), PersistentDataType.DOUBLE);

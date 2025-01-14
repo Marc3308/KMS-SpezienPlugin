@@ -173,11 +173,8 @@ public final class Rassensystem extends JavaPlugin implements Listener {
                             || p.getPersistentDataContainer().getOrDefault(new NamespacedKey("klassensysteem", "seelenenergie"), PersistentDataType.INTEGER,0)<=0) {
                         p.spigot().sendMessage(ChatMessageType.ACTION_BAR,new TextComponent(""));
                         if(p.getGameMode().equals(GameMode.SURVIVAL)){
-                            p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS,10*20,5,false,false));
-                            p.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS,10*20,0,false,false));
-                            p.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS,10*20,5,false,false));
-                            p.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS,10*20,1,false,false));
-                            p.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE,10*20,0,false,false));
+                            p.kickPlayer("Deine Seele ist aufgebraucht, mache bitte ein Ticket mit einem Neuen Charakter");
+                            Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "whitelist remove " + p.getName());
                         }
                     } else {
 

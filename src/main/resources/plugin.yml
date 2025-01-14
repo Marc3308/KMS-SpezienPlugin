@@ -1,6 +1,7 @@
 name: Rassensystem
 version: '${project.version}'
 main: me.marc3308.rassensystem.Rassensystem
+depend: [zerotrust]
 api-version: 1.19
 
 commands:

@@ -1,6 +1,7 @@
 name: Rassensystem
 version: '1.21.1'
 main: me.marc3308.rassensystem.Rassensystem
+depend: [zerotrust]
 api-version: 1.19
 
 commands:

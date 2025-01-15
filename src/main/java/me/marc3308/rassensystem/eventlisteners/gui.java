@@ -121,7 +121,8 @@ public class gui implements Listener {
                     p.openInventory(Sonstige);
                     break;
                 default:
-                    if(p.hasPermission("parte") && !p.getPersistentDataContainer().has(new NamespacedKey("patenplugin","partenmodus"), PersistentDataType.STRING))return;
+                    if(!p.hasPermission("parte"))return;
+                    if(!p.getPersistentDataContainer().has(new NamespacedKey("patenplugin","partenmodus"), PersistentDataType.STRING))return;
 
 
                     if(!p.getInventory().getItemInMainHand().getType().equals(Material.AIR)){

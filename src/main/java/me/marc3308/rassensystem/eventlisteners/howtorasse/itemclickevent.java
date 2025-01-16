@@ -29,6 +29,7 @@ public class itemclickevent implements Listener {
         if(!p.getInventory().getItemInMainHand().getType().equals(Material.PAPER))return;
         if(!p.getInventory().getItemInMainHand().hasItemMeta())return;
         if(!p.getInventory().getItemInMainHand().getItemMeta().hasCustomModelData())return;
+        if(!p.getInventory().getItemInMainHand().getItemMeta().hasLore())return;
 
         //check if rasse bind to player
         List new_list=p.getInventory().getItemInMainHand().getItemMeta().getLore();
@@ -47,7 +48,7 @@ public class itemclickevent implements Listener {
             p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
             p.sendMessage(ChatColor.DARK_GREEN+"Du bist nun ein: "+ChatColor.GREEN+getcon(2).getString(rasse+".name"));
             p.getInventory().setItemInMainHand(null);
-        } catch (IllegalArgumentException es){
+        } catch (IllegalArgumentException  | NullPointerException ex){
             return;
         }
 

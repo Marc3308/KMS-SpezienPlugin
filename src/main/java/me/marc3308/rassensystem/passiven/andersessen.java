@@ -58,7 +58,7 @@ public class andersessen implements Listener {
         fleischliste.add(Material.COOKED_CHICKEN);
         fleischliste.add(Material.COOKED_COD);
         fleischliste.add(Material.COOKED_MUTTON);
-        keinfleischliste.add(Material.COOKED_PORKCHOP);
+        fleischliste.add(Material.COOKED_PORKCHOP);
         fleischliste.add(Material.COOKED_RABBIT);
         fleischliste.add(Material.COOKED_SALMON);
         keinfleischliste.add(Material.COOKIE);

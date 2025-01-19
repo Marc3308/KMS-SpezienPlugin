@@ -47,7 +47,7 @@ public final class Rassensystem extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
 
-        //loop
+        //get the configs
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
             @Override
             public void run() {
@@ -92,6 +92,13 @@ public final class Rassensystem extends JavaPlugin implements Listener {
                 FileConfiguration con9= YamlConfiguration.loadConfiguration(file);
                 ItemCreater.conmap.put(9,con9);
 
+            }
+        },0,5*60*20);
+
+        //loop the werte
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+            @Override
+            public void run() {
 
                 for (Player p : Bukkit.getOnlinePlayers()){
 

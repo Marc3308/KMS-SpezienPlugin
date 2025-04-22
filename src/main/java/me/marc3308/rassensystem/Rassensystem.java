@@ -1,5 +1,10 @@
 package me.marc3308.rassensystem;
 
+import me.marc3308.kMSCustemModels.extras;
+import me.marc3308.kMSCustemModels.objekts.CustemModel;
+import me.marc3308.rassensystem.Gui.guiclicker;
+import me.marc3308.rassensystem.Gui.guiverteiler;
+import me.marc3308.rassensystem.Gui.openeditorcommand;
 import me.marc3308.rassensystem.command.getrasse;
 import me.marc3308.rassensystem.command.rassencommand;
 import me.marc3308.rassensystem.eventlisteners.Joinding;
@@ -36,6 +41,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+
 import static me.marc3308.rassensystem.ItemCreater.getcon;
 
 public final class Rassensystem extends JavaPlugin implements Listener {
@@ -51,6 +57,7 @@ public final class Rassensystem extends JavaPlugin implements Listener {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
             @Override
             public void run() {
+
 
                 File file = new File("plugins/KMS Plugins/Arbeitundleben","Skills.yml");
                 FileConfiguration con= YamlConfiguration.loadConfiguration(file);
@@ -176,12 +183,21 @@ public final class Rassensystem extends JavaPlugin implements Listener {
                         }
                         return;
                     }
+
+                    //crea oder keine seelenenergie mehr
                     if(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)
-                            || p.getPersistentDataContainer().getOrDefault(new NamespacedKey("klassensysteem", "seelenenergie"), PersistentDataType.INTEGER,0)<=0) {
+                            || p.getPersistentDataContainer().getOrDefault(new NamespacedKey("klassensysteem", "seelenenergie"), PersistentDataType.INTEGER,100)<=0) {
                         p.spigot().sendMessage(ChatMessageType.ACTION_BAR,new TextComponent(""));
                         if(p.getGameMode().equals(GameMode.SURVIVAL)){
                             p.kickPlayer("Deine Seele ist aufgebraucht, mache bitte ein Ticket mit einem Neuen Charakter");
                             Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "whitelist remove " + p.getName());
+                            // Locate the player's .dat file
+                            File datFile = new File(Bukkit.getWorlds().get(0).getWorldFolder(),
+                                    "playerdata" + File.separator + p.getUniqueId() + ".dat");
+                            File olddatFile = new File(Bukkit.getWorlds().get(0).getWorldFolder(),
+                                    "playerdata" + File.separator + p.getUniqueId() + ".dat_old");
+                            if (datFile.exists())datFile.delete();
+                            if (olddatFile.exists())olddatFile.delete();
                         }
                     } else {
 
@@ -319,6 +335,17 @@ public final class Rassensystem extends JavaPlugin implements Listener {
 
         getCommand("spezienwahl").setExecutor(new rassencommand());
         getCommand("giverasse").setExecutor(new getrasse());
+
+
+        //neu
+        Bukkit.getPluginManager().registerEvents(new guiverteiler(),this);
+        Bukkit.getPluginManager().registerEvents(new guiclicker(),this);
+        getCommand("spezieseditor").setExecutor(new openeditorcommand());
+
+        extras.adminlist.add("COMMAND_BLOCK;Grund Auswahl;27");
+
+        //load the things
+        utilitys.loadeinstellungen();
 
         //listen
         List<String> infos=new ArrayList<>();
@@ -658,6 +685,10 @@ public final class Rassensystem extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         System.out.println("Rassenplugin is workling finneee");
+
+        //savesgrundeinstellungen
+        utilitys.saveeinstellungen();
+
     }
 
     public static Rassensystem getPlugin() {

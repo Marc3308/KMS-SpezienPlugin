@@ -36,8 +36,6 @@ public class Joinding implements Listener {
             p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), "fahigkeitscritdmg"), PersistentDataType.DOUBLE,0.0);
             p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), "fahigkeitscritchance"), PersistentDataType.DOUBLE,0.0);
             p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), "fightdmg"), PersistentDataType.DOUBLE,0.0);
-
-
         }
 
         //ausdauer

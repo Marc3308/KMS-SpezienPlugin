@@ -4,9 +4,17 @@ main: me.marc3308.rassensystem.Rassensystem
 depend: [zerotrust]
 api-version: 1.19
 
+permissions:
+  Spezienspezialist:
+    description: you are a spezien specialist
+    default: op
+
 commands:
   spezienwahl:
     description: you are beter then everybody
   giverasse:
     description: gives you the raze
     permission: parteleitung
+  spezieseditor:
+    description: opens the spezien editor
+    permission: Spezienspezialist

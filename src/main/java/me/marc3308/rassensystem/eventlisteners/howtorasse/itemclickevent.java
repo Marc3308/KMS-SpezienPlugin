@@ -34,6 +34,7 @@ public class itemclickevent implements Listener {
         //check if rasse bind to player
         List new_list=p.getInventory().getItemInMainHand().getItemMeta().getLore();
         try {
+
             UUID person=UUID.fromString(new_list.get(0).toString());
             if(!person.toString().equalsIgnoreCase(p.getUniqueId().toString()))return;
 
@@ -43,11 +44,13 @@ public class itemclickevent implements Listener {
             if(getcon(2).get(rasse)==null)return;
             if(!getcon(2).get(rasse+".custemmoddeldata").equals(p.getInventory().getItemInMainHand().getItemMeta().getCustomModelData()))return;
 
+            //chancherasse
             p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(),"rasse"), PersistentDataType.STRING,rasse);
             p.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(ItemCreater.getcon(2).get(rasse+".SpielerGröße")!=null ? ItemCreater.getcon(2).getDouble(rasse+".SpielerGröße") : 1);
             p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
             p.sendMessage(ChatColor.DARK_GREEN+"Du bist nun ein: "+ChatColor.GREEN+getcon(2).getString(rasse+".name"));
             p.getInventory().setItemInMainHand(null);
+
         } catch (IllegalArgumentException  | NullPointerException ex){
             return;
         }

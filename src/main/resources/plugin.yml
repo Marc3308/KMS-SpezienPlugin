@@ -7,7 +7,6 @@ api-version: 1.19
 permissions:
   Spezienspezialist:
     description: you are a spezien specialist
-    default: op
 
 commands:
   spezienwahl:

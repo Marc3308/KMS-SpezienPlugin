@@ -1,5 +1,6 @@
 package me.marc3308.rassensystem;
 
+import me.marc3308.rassensystem.objekts.Spezies;
 import me.marc3308.rassensystem.objekts.einstellungen;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -7,12 +8,14 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
 public class utilitys {
 
     public static einstellungen einstellungen;
+    public static ArrayList<Spezies> spezienliste = new ArrayList<>();
 
     public static void loadeinstellungen(){
 
@@ -51,6 +54,7 @@ public class utilitys {
                 grundconf.getInt("sk")
         );
     }
+
     public static void saveeinstellungen(){
 
         File cosfile = new File("plugins/KMS Plugins/Rassensystem","Grundeinstellungen.yml");

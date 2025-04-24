@@ -1,21 +1,27 @@
 package me.marc3308.rassensystem.Gui;
 
 import me.marc3308.kMSCustemModels.extras;
+import me.marc3308.rassensystem.Rassensystem;
+import me.marc3308.rassensystem.objekts.Spezies;
 import me.marc3308.rassensystem.utilitys;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class guiverteiler implements Listener {
 
@@ -224,6 +230,44 @@ public class guiverteiler implements Listener {
                     inv.setItem(point+1,getplusminusblock(false,false,false));
                     inv.setItem(point+2,getplusminusblock(true,false,false));
                 }
+                return;
+            }
+
+            if(e.getView().getTitle().split(" : ")[0].equalsIgnoreCase("Grund Auswahl > Spezies")){
+                int Seitenzahl = e.getView().getTitle().split(" : ").length==1 ? 1 : Integer.valueOf(e.getView().getTitle().split(" : ")[1].split(" & ")[0]);
+                setStandartarray(inv,Seitenzahl);
+
+                ArrayList<Spezies> thislist= new ArrayList<Spezies>(utilitys.spezienliste);
+
+                //filter system
+                if(e.getView().getTitle().split(" & ").length==2){
+                    String filter = e.getView().getTitle().split(" & ")[1];
+                    thislist.sort(Comparator.comparingInt(pl -> getSimilarityScore(extras.getCustemModel(pl.getTicker()).getModelName() , filter)));
+                }
+
+                for(Spezies sp : thislist){
+                    if (thislist.indexOf(sp) >= 44 * (Seitenzahl-1) && thislist.indexOf(sp) <= 44 * Seitenzahl) {
+                        inv.setItem(inv.firstEmpty(), new ItemStack(extras.getCustemModel(sp.getTicker()).getModelBlock()){{
+                            ItemMeta meta = getItemMeta();
+                            meta.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING, sp.getErkennung());
+                            meta.setDisplayName(extras.getCustemModel(sp.getTicker()).getModelName());
+                            meta.setLore(new ArrayList<String>(extras.getCustemModel(sp.getTicker()).getModelBeschreibung()) {{
+                                add("");
+                                add("§cLeben:§f "+sp.getLeben()+"%   §cLebenreg:§f "+sp.getLebenreg()+"%");
+                                add("§eAusdauer:§f "+sp.getAusdauer()+"%   §eAusdauerreg:§f "+sp.getAusreg()+"%");
+                                add("§9Mana:§f "+sp.getMana()+"%   §9Manareg:§f "+sp.getManareg()+"%");
+                                add("Passiven:");
+                                sp.getPassiven().forEach(pa -> add((sp.getPassiven().indexOf(pa)+1)+". "+pa.toString()));
+                                add("");
+                                add("§eLinksklick um die Spezies zu editieren");
+                                add("§cRechtsklick um die Spezies zu löschen");
+                            }});
+                            meta.setCustomModelData(extras.getCustemModel(sp.getTicker()).getModelData());
+                            setItemMeta(meta);
+                        }});
+                    }
+                }
+
                 return;
             }
 
@@ -445,7 +489,7 @@ public class guiverteiler implements Listener {
 
         inv.setItem(inv.getSize()-7,new ItemStack(Material.ANVIL){{
             ItemMeta meta= getItemMeta();
-            meta.setDisplayName(ChatColor.GREEN+"Item Hinzufügen");
+            meta.setDisplayName(ChatColor.GREEN+"Hinzufügen");
             meta.setLore(new ArrayList<String>(){{
                 add("Hier klicken um ein Item hinzuzufügen");
             }});
@@ -464,5 +508,28 @@ public class guiverteiler implements Listener {
             setItemMeta(meta);
         }});
 
+        inv.setItem(inv.getSize()-1,new ItemStack(Material.NAME_TAG){{
+            ItemMeta meta= getItemMeta();
+            meta.setDisplayName(ChatColor.GREEN+"Filter");
+            meta.setLore(new ArrayList<String>(){{
+                add("Hier klicken um nach einem Begriff zu Filtern");
+            }});
+            setItemMeta(meta);
+        }});
+
     }
+
+    private static int getSimilarityScore(String name, String target) {
+        // Lower score = better match
+        name = name.toLowerCase();
+        target = target.toLowerCase();
+
+        if (name.equals(target)) return 0; // perfect match
+        if (name.startsWith(target)) return 1;
+        if (name.contains(target)) return 2;
+
+        // fallback: sort alphabetically (or by edit distance if you want more accuracy)
+        return 3;
+    }
+
 }

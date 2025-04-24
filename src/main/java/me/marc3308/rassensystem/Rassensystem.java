@@ -1,7 +1,6 @@
 package me.marc3308.rassensystem;
 
 import me.marc3308.kMSCustemModels.extras;
-import me.marc3308.kMSCustemModels.objekts.CustemModel;
 import me.marc3308.rassensystem.Gui.guiclicker;
 import me.marc3308.rassensystem.Gui.guiverteiler;
 import me.marc3308.rassensystem.Gui.openeditorcommand;
@@ -343,6 +342,7 @@ public final class Rassensystem extends JavaPlugin implements Listener {
         getCommand("spezieseditor").setExecutor(new openeditorcommand());
 
         extras.adminlist.add("COMMAND_BLOCK;Grund Auswahl;27");
+        extras.permisionlist.add("Spezienspezialist");
 
         //load the things
         utilitys.loadeinstellungen();
@@ -358,11 +358,9 @@ public final class Rassensystem extends JavaPlugin implements Listener {
         //pasivennamensliste
         if(rasse.get("Grundwerte")==null){
 
-
             rasse.set("Grundkosten"+".Schadenimkampf",90.0);
             rasse.set("Grundkosten"+".Schadenwennkeinausdauer",90.0);
             rasse.set("Grundkosten"+".DIAMOND_SWORD",1.0);
-
 
             rasse.set("Grundwerte"+".leben",20.0);
             rasse.set("Grundwerte"+".lebenreg",2.0);

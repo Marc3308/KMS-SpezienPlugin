@@ -1,13 +1,18 @@
 package me.marc3308.rassensystem.Gui;
 
 import me.marc3308.kMSCustemModels.extras;
+import me.marc3308.rassensystem.Rassensystem;
+import me.marc3308.rassensystem.objekts.Spezies;
 import me.marc3308.rassensystem.utilitys;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.persistence.PersistentDataType;
 
 public class guiclicker implements Listener {
 
@@ -34,8 +39,36 @@ public class guiclicker implements Listener {
             }
         }
 
-        if(e.getView().getTitle().equalsIgnoreCase("Grund Auswahl > Spezies")){
+        if(e.getView().getTitle().split(" : ")[0].equalsIgnoreCase("Grund Auswahl > Spezies")){
+            e.setCancelled(true);
+            standartinv(p,e,Bukkit.createInventory(p,27, "Grund Auswahl"),
+                    () -> {
+                extras.openMaterialAnvilgui(p,
+                        Bukkit.createInventory(p,54, e.getView().getTitle()),
+                        "Grund Auswahl > Spezies > Hinzufügen","§oSUCHEN", mat -> {
 
+                            while (true){
+                                String tik= extras.randomLetters(6);
+                                if(!utilitys.spezienliste.stream().filter(sp -> sp.getErkennung().equals(tik)).findAny().isPresent()){
+                                    utilitys.spezienliste.add(new Spezies(tik));
+                                    break;
+                                }
+                            }
+                        });
+            },() -> {
+                if(e.getAction().equals(InventoryAction.PICKUP_ALL)){
+                    p.openInventory(Bukkit.createInventory(p,54, "Grund Auswahl > Spezies > "
+                            +e.getCurrentItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING)));
+                } else if(e.getAction().equals(InventoryAction.PICKUP_HALF)){
+                    utilitys.spezienliste.stream().filter(sp ->
+                            sp.getErkennung().equals(e.getCurrentItem().getItemMeta().getPersistentDataContainer()
+                                    .get(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING)))
+                            .findFirst().ifPresent(sp ->{
+                                utilitys.spezienliste.remove(sp);
+                                p.openInventory(Bukkit.createInventory(p,54, e.getView().getTitle()));
+                            });
+                }
+            });
         }
 
         if(e.getView().getTitle().equalsIgnoreCase("Grund Auswahl > Einstellungen")){
@@ -151,97 +184,97 @@ public class guiclicker implements Listener {
                 case 10:
                     extras.openStringAnvilgui(p,
                             Bukkit.createInventory(p,45, "Grund Auswahl > Einstellungen > Spieler"),
-                            "Grund Auswahl > Einstellungen > Spieler > Leben","Zahl",
+                            "Grund Auswahl > Einstellungen > Spieler > Leben",String.valueOf(utilitys.einstellungen.getLeben()),
                             sti -> utilitys.einstellungen.setLeben(Double.valueOf(sti)));
                     break;
                 case 11:
                     extras.openStringAnvilgui(p,
                             Bukkit.createInventory(p,45, "Grund Auswahl > Einstellungen > Spieler"),
-                            "Grund Auswahl > Einstellungen > Spieler > Lebenreg","Zahl",
+                            "Grund Auswahl > Einstellungen > Spieler > Lebenreg",String.valueOf(utilitys.einstellungen.getLebenreg()),
                             sti -> utilitys.einstellungen.setLebenreg(Double.valueOf(sti)));
                     break;
                 case 19:
                     extras.openStringAnvilgui(p,
                             Bukkit.createInventory(p,45, "Grund Auswahl > Einstellungen > Spieler"),
-                            "Grund Auswahl > Einstellungen > Spieler > Ausdauer","Zahl",
+                            "Grund Auswahl > Einstellungen > Spieler > Ausdauer",String.valueOf(utilitys.einstellungen.getAusdauer()),
                             sti -> utilitys.einstellungen.setAusdauer(Double.valueOf(sti)));
                     break;
                 case 20:
                     extras.openStringAnvilgui(p,
                             Bukkit.createInventory(p,45, "Grund Auswahl > Einstellungen > Spieler"),
-                            "Grund Auswahl > Einstellungen > Spieler > Ausdauerreg","Zahl",
+                            "Grund Auswahl > Einstellungen > Spieler > Ausdauerreg",String.valueOf(utilitys.einstellungen.getAusreg()),
                             sti -> utilitys.einstellungen.setAusreg(Double.valueOf(sti)));
                     break;
                 case 28:
                     extras.openStringAnvilgui(p,
                             Bukkit.createInventory(p,45, "Grund Auswahl > Einstellungen > Spieler"),
-                            "Grund Auswahl > Einstellungen > Spieler > Mana","Zahl",
+                            "Grund Auswahl > Einstellungen > Spieler > Mana",String.valueOf(utilitys.einstellungen.getMana()),
                             sti -> utilitys.einstellungen.setMana(Double.valueOf(sti)));
                     break;
                 case 29:
                     extras.openStringAnvilgui(p,
                             Bukkit.createInventory(p,45, "Grund Auswahl > Einstellungen > Spieler"),
-                            "Grund Auswahl > Einstellungen > Spieler > Manareg","Zahl",
+                            "Grund Auswahl > Einstellungen > Spieler > Manareg",String.valueOf(utilitys.einstellungen.getManareg()),
                             sti -> utilitys.einstellungen.setManareg(Double.valueOf(sti)));
                     break;
                 case 13:
                     extras.openStringAnvilgui(p,
                             Bukkit.createInventory(p,45, "Grund Auswahl > Einstellungen > Spieler"),
-                            "Grund Auswahl > Einstellungen > Spieler > Waffenschaden","Zahl",
+                            "Grund Auswahl > Einstellungen > Spieler > Waffenschaden",String.valueOf(utilitys.einstellungen.getWaffenschaden()),
                             sti -> utilitys.einstellungen.setWaffenschaden(Double.valueOf(sti)));
                     break;
                 case 14:
                     extras.openStringAnvilgui(p,
                             Bukkit.createInventory(p,45, "Grund Auswahl > Einstellungen > Spieler"),
-                            "Grund Auswahl > Einstellungen > Spieler > Waffen-Geschwindigkeit","Zahl",
+                            "Grund Auswahl > Einstellungen > Spieler > Waffen-Geschwindigkeit",String.valueOf(utilitys.einstellungen.getWaffengeschwindigkeit()),
                             sti -> utilitys.einstellungen.setWaffengeschwindigkeit(Double.valueOf(sti)));
                     break;
                 case 22:
                     extras.openStringAnvilgui(p,
                             Bukkit.createInventory(p,45, "Grund Auswahl > Einstellungen > Spieler"),
-                            "Grund Auswahl > Einstellungen > Spieler > Waffen-crit-dmg","Zahl",
+                            "Grund Auswahl > Einstellungen > Spieler > Waffen-crit-dmg",String.valueOf(utilitys.einstellungen.getWaffencritdmg()),
                             sti -> utilitys.einstellungen.setWaffencritdmg(Double.valueOf(sti)));
                     break;
                 case 23:
                     extras.openStringAnvilgui(p,
                             Bukkit.createInventory(p,45, "Grund Auswahl > Einstellungen > Spieler"),
-                            "Grund Auswahl > Einstellungen > Spieler > Waffen-crit-chance","Zahl",
+                            "Grund Auswahl > Einstellungen > Spieler > Waffen-crit-chance",String.valueOf(utilitys.einstellungen.getWaffencritchance()),
                             sti -> utilitys.einstellungen.setWaffencritchance(Double.valueOf(sti)));
                     break;
                 case 15:
                     extras.openStringAnvilgui(p,
                             Bukkit.createInventory(p,45, "Grund Auswahl > Einstellungen > Spieler"),
-                            "Grund Auswahl > Einstellungen > Spieler > Fähigkeitsschaden","Zahl",
+                            "Grund Auswahl > Einstellungen > Spieler > Fähigkeitsschaden",String.valueOf(utilitys.einstellungen.getFahigkeitsdmg()),
                             sti -> utilitys.einstellungen.setFahigkeitsdmg(Double.valueOf(sti)));
                     break;
                 case 16:
                     extras.openStringAnvilgui(p,
                             Bukkit.createInventory(p,45, "Grund Auswahl > Einstellungen > Spieler"),
-                            "Grund Auswahl > Einstellungen > Spieler > Fähigkeit-Geschwindigkeit","Zahl",
+                            "Grund Auswahl > Einstellungen > Spieler > Fähigkeit-Geschwindigkeit",String.valueOf(utilitys.einstellungen.getFahigkeitsgeschwindigkeit()),
                             sti -> utilitys.einstellungen.setFahigkeitsgeschwindigkeit(Double.valueOf(sti)));
                     break;
                 case 24:
                     extras.openStringAnvilgui(p,
                             Bukkit.createInventory(p,45, "Grund Auswahl > Einstellungen > Spieler"),
-                            "Grund Auswahl > Einstellungen > Spieler > Fähigkeit-crit-dmg","Zahl",
+                            "Grund Auswahl > Einstellungen > Spieler > Fähigkeit-crit-dmg",String.valueOf(utilitys.einstellungen.getFahigkeitscritdmg()),
                             sti -> utilitys.einstellungen.setFahigkeitscritdmg(Double.valueOf(sti)));
                     break;
                 case 25:
                     extras.openStringAnvilgui(p,
                             Bukkit.createInventory(p,45, "Grund Auswahl > Einstellungen > Spieler"),
-                            "Grund Auswahl > Einstellungen > Spieler > Fähigkeit-crit-chance","Zahl",
+                            "Grund Auswahl > Einstellungen > Spieler > Fähigkeit-crit-chance",String.valueOf(utilitys.einstellungen.getWaffencritchance()),
                             sti -> utilitys.einstellungen.setFahigkeitscritchance(Double.valueOf(sti)));
                     break;
                 case 32:
                     extras.openStringAnvilgui(p,
                             Bukkit.createInventory(p,45, "Grund Auswahl > Einstellungen > Spieler"),
-                            "Grund Auswahl > Einstellungen > Spieler > Bewegungsgeschwindigkeit","Zahl",
+                            "Grund Auswahl > Einstellungen > Spieler > Bewegungsgeschwindigkeit",String.valueOf(utilitys.einstellungen.getBewegungsgeschwindigkeit()),
                             sti -> utilitys.einstellungen.setBewegungsgeschwindigkeit(Double.valueOf(sti)));
                     break;
                 case 33:
                     extras.openStringAnvilgui(p,
                             Bukkit.createInventory(p,45, "Grund Auswahl > Einstellungen > Spieler"),
-                            "Grund Auswahl > Einstellungen > Spieler > Skill-Slots","Zahl",
+                            "Grund Auswahl > Einstellungen > Spieler > Skill-Slots",String.valueOf(utilitys.einstellungen.getSkillslots()),
                             sti -> utilitys.einstellungen.setSkillslots(Integer.valueOf(sti)));
                     break;
                 case 36:
@@ -249,6 +282,30 @@ public class guiclicker implements Listener {
                     break;
             }
 
+        }
+    }
+
+    private void standartinv(Player p, InventoryClickEvent e, Inventory backinv, Runnable anvil, Runnable clickitem) {
+        if(e.getInventory().getSize()-9==e.getSlot()){ //back
+            p.openInventory(backinv);
+        } else if(e.getInventory().getSize()-7==e.getSlot()){ //amboss
+            anvil.run();
+        } else if(e.getInventory().getSize()-5==e.getSlot()){ //book
+            p.openInventory(Bukkit.createInventory(p,e.getInventory().getSize(), e.getView().getTitle().split(" : ")[0]));
+        } else if(e.getInventory().getSize()-3==e.getSlot()){ //arrow
+            p.openInventory(Bukkit.createInventory(p,e.getInventory().getSize(), e.getView().getTitle().split(" : ")[0]+" : "
+                    +(e.getView().getTitle().split(" & ").length==2
+                    ? e.getCurrentItem().getItemMeta().getDisplayName()+" & "+e.getView().getTitle().split(" & ")[1]
+                    : e.getCurrentItem().getItemMeta().getDisplayName())));
+        } else if(e.getInventory().getSize()-1==e.getSlot()){ //nametak
+            extras.openStringAnvilgui(p,e.getInventory(),e.getView().getTitle()+" > Filter","Filter",
+                    stri -> {
+                        Bukkit.getScheduler().scheduleSyncDelayedTask(Rassensystem.getPlugin(), () -> {
+                            p.openInventory(Bukkit.createInventory(p,e.getInventory().getSize(),e.getView().getTitle().split(" : ")[0]+" : 1 & "+stri));
+                        },5L);
+                    });
+        } else { //item
+            clickitem.run();
         }
     }
 }

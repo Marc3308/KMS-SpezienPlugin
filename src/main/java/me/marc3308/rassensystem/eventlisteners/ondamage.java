@@ -182,7 +182,7 @@ public class ondamage implements Listener {
 
     public void iskamp(Player p,Double dmg){
 
-        if(!p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "fightdmg"), PersistentDataType.DOUBLE))return; //todo test if goes
+        if(!p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "fightdmg"), PersistentDataType.DOUBLE))return;
 
         //check to fight
         double gerade = p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "fightdmg"), PersistentDataType.DOUBLE)+dmg;

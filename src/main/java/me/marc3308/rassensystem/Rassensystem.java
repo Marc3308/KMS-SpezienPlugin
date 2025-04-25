@@ -346,69 +346,9 @@ public final class Rassensystem extends JavaPlugin implements Listener {
 
         //load the things
         utilitys.loadeinstellungen();
+        utilitys.loadspezies();
+        utilitys.loadpassive();
 
-        //listen
-        List<String> infos=new ArrayList<>();
-        infos.add("This yml is for the rassen, there are two sections to this, the Grundwerte and the Rassen");
-        infos.add("The Grundwerte are the stats every player has and begins with...");
-        infos.add("The Rassen devines the stats of posible rasses");
-        infos.add("For correckt use the Rassen: name, beschreibung, custemmoddeldata, leben, lebenreg, ausdauer, ausdauerreg, mana, manareg, resistzenzen, schwächen");
-        infos.add("wichtig noch die grundwerte sind die grundwerte jedes spielers auf den dann die boni der klassen und rassen draufgerechnet werden");
-
-        //pasivennamensliste
-        if(rasse.get("Grundwerte")==null){
-
-            rasse.set("Grundkosten"+".Schadenimkampf",90.0);
-            rasse.set("Grundkosten"+".Schadenwennkeinausdauer",90.0);
-            rasse.set("Grundkosten"+".DIAMOND_SWORD",1.0);
-
-            rasse.set("Grundwerte"+".leben",20.0);
-            rasse.set("Grundwerte"+".lebenreg",2.0);
-            rasse.set("Grundwerte"+".ausdauer",20.0);
-            rasse.set("Grundwerte"+".ausdauerreg",2.0);
-            rasse.set("Grundwerte"+".mana",20.0);
-            rasse.set("Grundwerte"+".manareg",2.0);
-
-            rasse.set("Grundwerte"+".bewegungsgeschwindigkeit",100.0);
-
-            rasse.set("Grundwerte"+".fahigkeitsschaden",100.0);
-            rasse.set("Grundwerte"+".fahigkeitscritdmg",200.0);
-            rasse.set("Grundwerte"+".fahigkeitscritchance",20.0);
-            rasse.set("Grundwerte"+".fahigkeitsgeschwindigkeit",100.0);
-
-            rasse.set("Grundwerte"+".waffenschaden",100.0);
-            rasse.set("Grundwerte"+".waffencritdmg",200.0);
-            rasse.set("Grundwerte"+".waffencritchance",20.0);
-            rasse.set("Grundwerte"+".waffengeschwindigkeit",100.0);
-            rasse.set("Grundwerte"+".skillslots",4);
-            rasse.set("Grundwerte"+".kampfregenerationsminus",80);
-            rasse.set("Grundwerte"+".kampfstartschaden",10);
-            rasse.set("Grundwerte"+".kampfende",10);
-
-            rasse.setComments("Grundwerte",infos);
-
-            rasse.set("Mensch"+".name","Mensch");
-            rasse.set("Mensch"+".beschreibung","Die Menschen sind menschlich");
-            rasse.set("Mensch"+".custemmoddeldata",1);
-            rasse.set("Mensch"+".leben",20.0);
-            rasse.set("Mensch"+".lebenreg",0.2);
-            rasse.set("Mensch"+".ausdauer",20.0);
-            rasse.set("Mensch"+".ausdauerreg",0.2);
-            rasse.set("Mensch"+".mana",20.0);
-            rasse.set("Mensch"+".manareg",0.2);
-            rasse.set("Mensch"+".resistzenzen"+".1","Feuer");
-            rasse.set("Mensch"+".schwächen"+".1","Feuer");
-            rasse.set("Mensch"+".passiven"+".1","nachtsicht");
-            rasse.set("Mensch"+".passiven"+".2","highjump");
-
-
-        }
-
-        try {
-            rasse.save(file);
-        } catch (IOException i) {
-            i.printStackTrace();
-        }
 
         // Plugin startup logic
         file = new File("plugins/KMS Plugins/Rassensystem","Rassenpassive.yml");
@@ -684,8 +624,10 @@ public final class Rassensystem extends JavaPlugin implements Listener {
     public void onDisable() {
         System.out.println("Rassenplugin is workling finneee");
 
-        //savesgrundeinstellungen
+        //save shit
         utilitys.saveeinstellungen();
+        utilitys.savespezies();
+        utilitys.savepassive();
 
     }
 

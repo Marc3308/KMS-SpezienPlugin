@@ -19,16 +19,16 @@ public class Spezies {
     //passiven
     private ArrayList<String> passiven;
 
-    public Spezies(String ticker) {
+    public Spezies(String ticker, String erkennung, double leben, double lebenreg, double ausdauer, double ausreg, double mana, double manareg, ArrayList<String> passiven) {
         this.ticker = ticker;
-        this.erkennung = ticker;
-        this.leben = 0.0;
-        this.lebenreg = 0.0;
-        this.ausdauer = 0.0;
-        this.ausreg = 0.0;
-        this.mana = 0.0;
-        this.manareg = 0.0;
-        this.passiven=new ArrayList<>();
+        this.erkennung = erkennung;
+        this.leben = leben;
+        this.lebenreg = lebenreg;
+        this.ausdauer = ausdauer;
+        this.ausreg = ausreg;
+        this.mana = mana;
+        this.manareg = manareg;
+        this.passiven = passiven;
     }
 
     public String getErkennung() {

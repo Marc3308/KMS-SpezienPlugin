@@ -1,7 +1,9 @@
 package me.marc3308.rassensystem.Gui;
 
+import me.marc3308.kMSCustemModels.KMSCustemModels;
 import me.marc3308.kMSCustemModels.extras;
 import me.marc3308.rassensystem.Rassensystem;
+import me.marc3308.rassensystem.objekts.Passive;
 import me.marc3308.rassensystem.objekts.Spezies;
 import me.marc3308.rassensystem.utilitys;
 import net.kyori.adventure.text.Component;
@@ -249,15 +251,16 @@ public class guiverteiler implements Listener {
                     if (thislist.indexOf(sp) >= 44 * (Seitenzahl-1) && thislist.indexOf(sp) <= 44 * Seitenzahl) {
                         inv.setItem(inv.firstEmpty(), new ItemStack(extras.getCustemModel(sp.getTicker()).getModelBlock()){{
                             ItemMeta meta = getItemMeta();
-                            meta.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING, sp.getErkennung());
+                            meta.getPersistentDataContainer().set(new NamespacedKey(KMSCustemModels.getPlugin(),"kurzel"), PersistentDataType.STRING, sp.getErkennung());
                             meta.setDisplayName(extras.getCustemModel(sp.getTicker()).getModelName());
                             meta.setLore(new ArrayList<String>(extras.getCustemModel(sp.getTicker()).getModelBeschreibung()) {{
                                 add("");
+                                add("Ticker:§f "+sp.getTicker());
                                 add("§cLeben:§f "+sp.getLeben()+"%   §cLebenreg:§f "+sp.getLebenreg()+"%");
                                 add("§eAusdauer:§f "+sp.getAusdauer()+"%   §eAusdauerreg:§f "+sp.getAusreg()+"%");
                                 add("§9Mana:§f "+sp.getMana()+"%   §9Manareg:§f "+sp.getManareg()+"%");
                                 add("Passiven:");
-                                sp.getPassiven().forEach(pa -> add((sp.getPassiven().indexOf(pa)+1)+". "+pa.toString()));
+                                sp.getPassiven().forEach(pa -> add((sp.getPassiven().indexOf(pa)+1)+". "+extras.getCustemModel(utilitys.passiveliste.stream().filter(pas -> pas.getErkennung().equals(pa)).findFirst().get().getTicker()).getModelName()));
                                 add("");
                                 add("§eLinksklick um die Spezies zu editieren");
                                 add("§cRechtsklick um die Spezies zu löschen");
@@ -267,7 +270,185 @@ public class guiverteiler implements Listener {
                         }});
                     }
                 }
+                return;
+            }
 
+            //einzelne spezien
+            if(e.getView().getTitle().split(" > ").length==3 && e.getView().getTitle().split(" > ")[1].equalsIgnoreCase("Spezies")
+                    && utilitys.spezienliste.stream().filter(sp -> sp.getErkennung().equalsIgnoreCase(e.getView().getTitle().split(" > ")[2])).findFirst().isPresent()){
+                utilitys.spezienliste.stream().filter(sp -> sp.getErkennung().equalsIgnoreCase(e.getView().getTitle().split(" > ")[2])).findFirst().ifPresent(sp -> {
+
+                    for (int i=0; i<6;i++){
+                        String tiker=i==0 ? "l" : i==1 ? "lr" : i==2 ? "a" : i==3 ? "ar" : i==4 ? "m" : "mr";
+                        double wert = i==0 ? sp.getLeben() : i==1 ? sp.getLebenreg() : i==2 ? sp.getAusdauer() : i==3 ? sp.getAusreg() : i==4 ? sp.getMana() : sp.getManareg();
+                        inv.setItem(i==0 ? 11 : i==1 ? 12 : i==2 ? 20 : i==3 ? 21 : i==4 ? 29 : 30,
+                                new ItemStack(extras.getCustemModel(tiker).getModelBlock()){{
+                                    ItemMeta meta = getItemMeta();
+                                    meta.setDisplayName("§nSpezies "+extras.getCustemModel(tiker).getModelName()+":§r "+ (wert>0 ? "+"+new DecimalFormat("#.#").format(wert) : new DecimalFormat("#.#").format(wert))+"%");
+                                    meta.setCustomModelData(extras.getCustemModel(tiker).getModelData());
+                                    meta.setLore(new ArrayList<String>() {{
+                                        add("§fDas Grund "+extras.getCustemModel(tiker).getModelName()+" des Spielers");
+                                        add("");
+                                        add("§eLinksklick um den wert zu verändern");
+                                    }});
+                                    setItemMeta(meta);
+                                }});
+                    }
+
+                    inv.setItem(14,new ItemStack(extras.getCustemModel(sp.getTicker()).getModelBlock()){{
+                        ItemMeta meta = getItemMeta();
+                        meta.setDisplayName(extras.getCustemModel(sp.getTicker()).getModelName());
+                        meta.setCustomModelData(extras.getCustemModel(sp.getTicker()).getModelData());
+                        meta.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING, sp.getTicker());
+                        meta.setLore(new ArrayList<String>(extras.getCustemModel(sp.getTicker()).getModelBeschreibung()) {{
+                            add("Ticker:§f "+sp.getTicker());
+                            add("");
+                            add("§eLinksklick um Ticker zu editieren");
+                            add("§aRechtsklick zum Ticker zu springen");
+                        }});
+                        setItemMeta(meta);
+                    }});
+                    inv.setItem(32,new ItemStack(extras.getCustemModel("pa").getModelBlock()){{
+                        ItemMeta meta = getItemMeta();
+                        meta.setDisplayName(extras.getCustemModel("pa").getModelName());
+                        meta.setCustomModelData(extras.getCustemModel("pa").getModelData());
+                        meta.setLore(new ArrayList<>(){{
+                            add("Passiven:");
+                            sp.getPassiven().forEach(pa -> add((sp.getPassiven().indexOf(pa)+1)+". "+extras.getCustemModel(utilitys.passiveliste.stream().filter(pas -> pas.getErkennung().equals(pa)).findFirst().get().getTicker()).getModelName()));
+                            add("");
+                            add("§eLinksklick um die passiven zu editieren");
+                        }});
+                        setItemMeta(meta);
+                    }});
+                    inv.setItem(36,back);
+                });
+            }
+
+            if(e.getView().getTitle().split(" > ").length==4 && e.getView().getTitle().split(" > ")[1].equalsIgnoreCase("Spezies")
+                    && utilitys.spezienliste.stream().filter(sp -> sp.getErkennung().equalsIgnoreCase(e.getView().getTitle().split(" > ")[2])).findFirst().isPresent()){
+                utilitys.spezienliste.stream().filter(sp -> sp.getErkennung().equalsIgnoreCase(e.getView().getTitle().split(" > ")[2])).findFirst().ifPresent(sp -> {
+                    int Seitenzahl = e.getView().getTitle().split(" : ").length==1 ? 1 : Integer.valueOf(e.getView().getTitle().split(" : ")[1].split(" & ")[0]);
+                    setStandartarray(inv,Seitenzahl);
+                    inv.setItem(inv.getSize()-7,new ItemStack(Material.AIR));
+
+                    ArrayList<Passive> thislist= new ArrayList<Passive>(utilitys.passiveliste);
+
+                    //filter system
+                    if(e.getView().getTitle().split(" & ").length==2){
+                        String filter = e.getView().getTitle().split(" & ")[1];
+                        thislist.sort(Comparator.comparingInt(pa -> getSimilarityScore(extras.getCustemModel(pa.getTicker()).getModelName() , filter)));
+                    }
+
+                    for(Passive pa : thislist){
+                        if (thislist.indexOf(pa) >= 15 * (Seitenzahl-1) && thislist.indexOf(pa) <= 15 * Seitenzahl) {
+                            inv.setItem((1+(thislist.indexOf(pa)*3)-(thislist.indexOf(pa)*(Seitenzahl-1))), new ItemStack(extras.getCustemModel(pa.getTicker()).getModelBlock()){{
+                                ItemMeta meta = getItemMeta();
+                                meta.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING, pa.getErkennung());
+                                meta.setDisplayName(extras.getCustemModel(pa.getTicker()).getModelName());
+                                meta.setLore(new ArrayList<String>(extras.getCustemModel(pa.getTicker()).getModelBeschreibung()) {{
+                                    add("");
+                                    add("Ticker:§f "+pa.getTicker());
+                                    add("Togglebar:§f "+(pa.getToggle() ? "§aJa" : "§cNein"));
+                                    add("Werte:");
+                                    pa.getPassive().forEach((s,i) -> add(s+": "+i));
+                                    add("");
+                                    add("§eLinksklick um zur Passiven zu springen");
+                                }});
+                                meta.setCustomModelData(extras.getCustemModel(pa.getTicker()).getModelData());
+                                setItemMeta(meta);
+                            }});
+                            inv.setItem(2+(thislist.indexOf(pa)*3)-(thislist.indexOf(pa)*(Seitenzahl-1)),new ItemStack(sp.getPassiven().contains(pa.getErkennung()) ? Material.GREEN_CONCRETE : Material.RED_CONCRETE){{
+                                ItemMeta meta = getItemMeta();
+                                meta.setDisplayName((sp.getPassiven().contains(pa.getErkennung()) ? "§aHinzugefügt" : "§cEntfernt"));
+                                meta.setLore(new ArrayList<String>() {{
+                                    add("§fHier klicken um die Passive hinzuzufügen/zu entfernen");
+                                }});
+                                setItemMeta(meta);
+                            }});
+                        }
+                    }
+                });
+            }
+
+            if(e.getView().getTitle().split(" : ")[0].equalsIgnoreCase("Grund Auswahl > Passive")){
+                int Seitenzahl = e.getView().getTitle().split(" : ").length==1 ? 1 : Integer.valueOf(e.getView().getTitle().split(" : ")[1].split(" & ")[0]);
+                setStandartarray(inv,Seitenzahl);
+                inv.setItem(inv.getSize()-7,new ItemStack(Material.AIR));
+
+                ArrayList<Passive> thislist= new ArrayList<Passive>(utilitys.passiveliste);
+
+                //filter system
+                if(e.getView().getTitle().split(" & ").length==2){
+                    String filter = e.getView().getTitle().split(" & ")[1];
+                    thislist.sort(Comparator.comparingInt(pa -> getSimilarityScore(extras.getCustemModel(pa.getTicker()).getModelName() , filter)));
+                }
+
+                for(Passive pa : thislist){
+                    if (thislist.indexOf(pa) >= 44 * (Seitenzahl-1) && thislist.indexOf(pa) <= 44 * Seitenzahl) {
+                        inv.setItem(inv.firstEmpty(), new ItemStack(extras.getCustemModel(pa.getTicker()).getModelBlock()){{
+                            ItemMeta meta = getItemMeta();
+                            meta.getPersistentDataContainer().set(new NamespacedKey(KMSCustemModels.getPlugin(),"kurzel"), PersistentDataType.STRING, pa.getErkennung());
+                            meta.setDisplayName(extras.getCustemModel(pa.getTicker()).getModelName());
+                            meta.setLore(new ArrayList<String>(extras.getCustemModel(pa.getTicker()).getModelBeschreibung()) {{
+                                add("");
+                                add("Ticker:§f "+pa.getTicker());
+                                add("Togglebar:§f "+(pa.getToggle() ? "§aJa" : "§cNein"));
+                                add("Werte:");
+                                pa.getPassive().forEach((s,i) -> add(s+": "+i));
+                                add("");
+                                add("§eLinksklick um die Passive zu editieren");
+                                add("§cRechtsklick um alles zurückzusetzen");
+                            }});
+                            meta.setCustomModelData(extras.getCustemModel(pa.getTicker()).getModelData());
+                            setItemMeta(meta);
+                        }});
+                    }
+                }
+                return;
+            }
+
+            //einzelne passive
+            if(e.getView().getTitle().split(" > ").length==3 && e.getView().getTitle().split(" > ")[1].equalsIgnoreCase("Passive")
+                    && utilitys.passiveliste.stream().filter(sp -> sp.getErkennung().equalsIgnoreCase(e.getView().getTitle().split(" > ")[2])).findFirst().isPresent()){
+                utilitys.passiveliste.stream().filter(pa -> pa.getErkennung().equals(e.getView().getTitle().split(" > ")[2])).findFirst().ifPresent(pa -> {
+
+                    pa.getPassive().forEach((s,i) ->{
+                        inv.setItem(inv.firstEmpty(), new ItemStack(Material.YELLOW_CONCRETE){{
+                            ItemMeta meta = getItemMeta();
+                            meta.setDisplayName(s+":§f "+ new DecimalFormat("#.#").format(i));
+                            meta.setLore(new ArrayList<String>() {{
+                                add("");
+                                add("§eLinksklick um den wert zu verändern");
+                            }});
+                            setItemMeta(meta);
+                        }});
+                    });
+
+                    inv.setItem(20,new ItemStack(pa.getToggle() ? Material.GREEN_CONCRETE : Material.RED_CONCRETE){{
+                        ItemMeta meta = getItemMeta();
+                        meta.setDisplayName("§nPassive Togglebar:§r "+(pa.getToggle() ? "§aJa" : "§cNein"));
+                        meta.setLore(new ArrayList<String>() {{
+                            add("§fHier klicken um den passive toggeln zu ändern");
+                        }});
+                        setItemMeta(meta);
+                    }});
+
+                    inv.setItem(22,new ItemStack(extras.getCustemModel(pa.getTicker()).getModelBlock()){{
+                        ItemMeta meta = getItemMeta();
+                        meta.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING, pa.getTicker());
+                        meta.setDisplayName(extras.getCustemModel(pa.getTicker()).getModelName());
+                        meta.setCustomModelData(extras.getCustemModel(pa.getTicker()).getModelData());
+                        meta.setLore(new ArrayList<String>(extras.getCustemModel(pa.getTicker()).getModelBeschreibung()) {{
+                            add("Ticker:§f "+pa.getTicker());
+                            add("");
+                            add("§eLinksklick um Ticker zu editieren");
+                            add("§aRechtsklick zum Ticker zu springen");
+                        }});
+                        setItemMeta(meta);
+                    }});
+
+                    inv.setItem(18,back);
+                });
                 return;
             }
 

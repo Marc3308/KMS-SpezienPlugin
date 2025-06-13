@@ -3,10 +3,10 @@ package me.marc3308.rassensystem.Gui;
 import me.marc3308.kMSCustemModels.KMSCustemModels;
 import me.marc3308.kMSCustemModels.extras;
 import me.marc3308.rassensystem.Rassensystem;
+import me.marc3308.rassensystem.objekts.Passive;
 import me.marc3308.rassensystem.objekts.Spezies;
 import me.marc3308.rassensystem.utilitys;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,6 +17,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
+
+import static me.marc3308.rassensystem.utilitys.addpassivroster;
 
 public class guiclicker implements Listener {
 
@@ -52,8 +54,8 @@ public class guiclicker implements Listener {
                         "Grund Auswahl > Spezies > Hinzufügen","§oMaterial", mat -> {
                             while (true){
                                 String tik= extras.randomLetters(6);
-                                if(!utilitys.spezienliste.stream().filter(sp -> sp.getErkennung().equals(tik)).findAny().isPresent()){
-                                    utilitys.spezienliste.add(new Spezies(tik,tik,0.0,0.0,0.0,0.0,0.0,0.0,new ArrayList<String>()));
+                                if(!utilitys.spezienliste.containsKey(tik)){
+                                    utilitys.spezienliste.put(tik,new Spezies(tik,tik,0.0,0.0,0.0,0.0,0.0,0.0,1.0,new ArrayList<String>()));
                                     break;
                                 }
                             }
@@ -61,96 +63,102 @@ public class guiclicker implements Listener {
             },() -> {
                 if(e.getAction().equals(InventoryAction.PICKUP_ALL)){
                     p.openInventory(Bukkit.createInventory(p,45, "Grund Auswahl > Spezies > "
-                            +e.getCurrentItem().getPersistentDataContainer().get(new NamespacedKey(KMSCustemModels.getPlugin(),"kurzel"), PersistentDataType.STRING)));
+                            +e.getCurrentItem().getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING)));
                 } else if(e.getAction().equals(InventoryAction.PICKUP_HALF)){
-                    utilitys.spezienliste.stream().filter(sp ->
-                            sp.getErkennung().equals(e.getCurrentItem().getPersistentDataContainer()
-                                    .get(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING)))
-                            .findFirst().ifPresent(sp ->{
-                                utilitys.spezienliste.remove(sp);
-                                p.openInventory(Bukkit.createInventory(p,54, e.getView().getTitle()));
-                            });
+                    utilitys.spezienliste.remove(e.getCurrentItem().getPersistentDataContainer()
+                            .get(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING));
+                    p.openInventory(Bukkit.createInventory(p,54, e.getView().getTitle()));
                 }
             });
         }
 
         if(e.getView().getTitle().split(" > ").length==3 && e.getView().getTitle().split(" > ")[1].equalsIgnoreCase("Spezies")
-                && utilitys.spezienliste.stream().filter(sp -> sp.getErkennung().equalsIgnoreCase(e.getView().getTitle().split(" > ")[2])).findFirst().isPresent()){
+                && utilitys.spezienliste.containsKey(e.getView().getTitle().split(" > ")[2])){
             e.setCancelled(true);
-            utilitys.spezienliste.stream().filter(sp -> sp.getErkennung().equalsIgnoreCase(e.getView().getTitle().split(" > ")[2])).findFirst().ifPresent(sp -> {
-                switch (e.getSlot()) {
-                    case 36:
-                        p.openInventory(Bukkit.createInventory(p, 54, "Grund Auswahl > Spezies"));
-                        return;
-                    case 32:
-                        p.openInventory(Bukkit.createInventory(p, 54, e.getView().getTitle() + " > " + "Passiven"));
-                        return;
-                    default:
-                        int i = e.getSlot();
-                        String tiker = i == 11 ? "l" : i == 12 ? "lr" : i == 20 ? "a" : i == 21 ? "ar" : i == 29 ? "m" : i==30 ? "mr" : "tk";
-                        double wert = i == 11 ? sp.getLeben() : i == 12 ? sp.getLebenreg() : i == 20 ? sp.getAusdauer() : i == 21 ? sp.getAusreg() : i == 29 ? sp.getMana() : sp.getManareg();
+            Spezies sp = utilitys.spezienliste.get(e.getView().getTitle().split(" > ")[2]);
+            switch (e.getSlot()) {
+                case 36:
+                    p.openInventory(Bukkit.createInventory(p, 54, "Grund Auswahl > Spezies"));
+                    return;
+                case 32:
+                    p.openInventory(Bukkit.createInventory(p, 54, e.getView().getTitle() + " > " + "Passiven"));
+                    return;
+                case 23:
+                    extras.openStringAnvilgui(p,e.getInventory(),
+                            e.getView().getTitle() + " > Größe", String.valueOf(sp.getGrose()), sti -> {
+                                sp.setGrose(Double.parseDouble(sti));
+                                Bukkit.getScheduler().scheduleSyncDelayedTask(Rassensystem.getPlugin(), () -> {
+                                    p.openInventory(e.getInventory());
+                                }, 5L);
+                            });
+                    break;
+                default:
+                    int i = e.getSlot();
+                    String tiker = i == 11 ? "l" : i == 12 ? "lr" : i == 20 ? "a" : i == 21 ? "ar" : i == 29 ? "m" : i==30 ? "mr" : "tk";
+                    double wert = i == 11 ? sp.getLeben() : i == 12 ? sp.getLebenreg() : i == 20 ? sp.getAusdauer() : i == 21 ? sp.getAusreg() : i == 29 ? sp.getMana() : sp.getManareg();
 
-                        if(tiker.equals("tk") && e.getAction().equals(InventoryAction.PICKUP_HALF)){
-                            p.openInventory(Bukkit.createInventory(p,27, "Grund Auswahl > Passive > "+sp.getTicker()));
-                            return;
-                        }
-
-                        extras.openStringAnvilgui(p, Bukkit.createInventory(p, 45, e.getView().getTitle()),
-                                e.getView().getTitle() + " > " + (tiker.equals("tk") ? "Ticker": extras.getCustemModel(tiker).getModelName()), (tiker.equals("tk") ? sp.getTicker(): String.valueOf(wert)), sti -> {
-                                    switch (tiker) {
-                                        case "l":
-                                            sp.setLeben(Double.valueOf(sti));
-                                            break;
-                                        case "lr":
-                                            sp.setLebenreg(Double.valueOf(sti));
-                                            break;
-                                        case "a":
-                                            sp.setAusdauer(Double.valueOf(sti));
-                                            break;
-                                        case "ar":
-                                            sp.setAusreg(Double.valueOf(sti));
-                                            break;
-                                        case "m":
-                                            sp.setMana(Double.valueOf(sti));
-                                            break;
-                                        case "mr":
-                                            sp.setManareg(Double.valueOf(sti));
-                                            break;
-                                        case "tk":
-                                            sp.setTicker(sti);
-                                            break;
-                                    }
-                                });
+                    if(tiker.equals("tk") && e.getAction().equals(InventoryAction.PICKUP_HALF)){
+                        p.openInventory(Bukkit.createInventory(p,45, "CustemModel Editor > "+sp.getTicker()));
                         return;
-                }
-            });
+                    }
+
+                    extras.openStringAnvilgui(p, e.getInventory(),
+                            e.getView().getTitle() + " > " + (tiker.equals("tk") ? "Ticker": extras.getCustemModel(tiker).getModelName()), (tiker.equals("tk") ? sp.getTicker(): ""), sti -> {
+                                switch (tiker) {
+                                    case "l":
+                                        sp.setLeben(Double.valueOf(sti));
+                                        break;
+                                    case "lr":
+                                        sp.setLebenreg(Double.valueOf(sti));
+                                        break;
+                                    case "a":
+                                        sp.setAusdauer(Double.valueOf(sti));
+                                        break;
+                                    case "ar":
+                                        sp.setAusreg(Double.valueOf(sti));
+                                        break;
+                                    case "m":
+                                        sp.setMana(Double.valueOf(sti));
+                                        break;
+                                    case "mr":
+                                        sp.setManareg(Double.valueOf(sti));
+                                        break;
+                                    case "tk":
+                                        sp.setTicker(sti);
+                                        break;
+                                }
+                                Bukkit.getScheduler().scheduleSyncDelayedTask(Rassensystem.getPlugin(), () -> {
+                                    p.openInventory(e.getInventory());
+                                }, 5L);
+                            });
+                    break;
+            }
         }
 
         if(e.getView().getTitle().split(" > ").length==4 && e.getView().getTitle().split(" > ")[1].equalsIgnoreCase("Spezies")
-                && utilitys.spezienliste.stream().filter(sp -> sp.getErkennung().equalsIgnoreCase(e.getView().getTitle().split(" > ")[2])).findFirst().isPresent()){
+                && utilitys.spezienliste.containsKey(e.getView().getTitle().split(" > ")[2])){
             e.setCancelled(true);
-            utilitys.spezienliste.stream().filter(sp -> sp.getErkennung().equalsIgnoreCase(e.getView().getTitle().split(" > ")[2])).findFirst().ifPresent(sp -> {
-               standartinv(p,e,Bukkit.createInventory(p,54, "Grund Auswahl > Spezies"),() -> {},() -> {
-                    switch (e.getCurrentItem().getType()){
-                        case RED_CONCRETE:
-                            sp.getPassiven().add(e.getInventory().getItem(e.getSlot()-1).getPersistentDataContainer()
-                                    .get(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING));
-                            p.openInventory(Bukkit.createInventory(p,e.getInventory().getSize(),e.getView().getTitle()));
-                            break;
-                        case GREEN_CONCRETE:
-                            sp.getPassiven().remove(e.getInventory().getItem(e.getSlot()-1).getPersistentDataContainer()
-                                    .get(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING));
-                            p.openInventory(Bukkit.createInventory(p,e.getInventory().getSize(),e.getView().getTitle()));
-                            break;
-                        default:
-                            if(e.getCurrentItem().getPersistentDataContainer()
-                                    .get(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING)!=null);
-                            p.openInventory(Bukkit.createInventory(p,27, "Grund Auswahl > Passive > "
-                                    +e.getCurrentItem().getPersistentDataContainer()
-                                    .get(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING)));
-                            break;
-                    }
-               });
+            Spezies sp = utilitys.spezienliste.get(e.getView().getTitle().split(" > ")[2]);
+            standartinv(p,e,Bukkit.createInventory(p,54, "Grund Auswahl > Spezies"),() -> {},() -> {
+                switch (e.getCurrentItem().getType()){
+                    case RED_CONCRETE:
+                        sp.getPassiven().add(e.getInventory().getItem(e.getSlot()-1).getPersistentDataContainer()
+                                .get(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING));
+                        p.openInventory(Bukkit.createInventory(p,e.getInventory().getSize(),e.getView().getTitle()));
+                        break;
+                    case GREEN_CONCRETE:
+                        sp.getPassiven().remove(e.getInventory().getItem(e.getSlot()-1).getPersistentDataContainer()
+                                .get(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING));
+                        p.openInventory(Bukkit.createInventory(p,e.getInventory().getSize(),e.getView().getTitle()));
+                        break;
+                    default:
+                        if(e.getCurrentItem().getPersistentDataContainer()
+                                .get(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING)!=null);
+                        p.openInventory(Bukkit.createInventory(p,27, "Grund Auswahl > Passive > "
+                                +e.getCurrentItem().getPersistentDataContainer()
+                                .get(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING)));
+                        break;
+                }
             });
         }
 
@@ -177,52 +185,46 @@ public class guiclicker implements Listener {
                             p.openInventory(Bukkit.createInventory(p,27, "Grund Auswahl > Passive > "
                                     +e.getCurrentItem().getPersistentDataContainer().get(new NamespacedKey(KMSCustemModels.getPlugin(),"kurzel"), PersistentDataType.STRING)));
                         } else if(e.getAction().equals(InventoryAction.PICKUP_HALF)){
-                            utilitys.passiveliste.stream().filter(ps -> ps.getErkennung().equals(e.getCurrentItem().getPersistentDataContainer()
-                                    .get(new NamespacedKey(KMSCustemModels.getPlugin(),"kurzel"), PersistentDataType.STRING))).findFirst().ifPresent(sp -> {
-                                utilitys.passiveliste.remove(sp);
-                                utilitys.savepassive();
-                                Bukkit.getScheduler().scheduleSyncDelayedTask(KMSCustemModels.getPlugin(),()->{
-                                    utilitys.loadpassive();
-                                    p.openInventory(Bukkit.createInventory(p,e.getInventory().getSize(), e.getView().getTitle()));
-                                },5L);
-                            });
+                            utilitys.passiveliste.remove(e.getCurrentItem().getPersistentDataContainer()
+                                    .get(new NamespacedKey(KMSCustemModels.getPlugin(),"kurzel"), PersistentDataType.STRING));
+                            addpassivroster();
+                            p.openInventory(Bukkit.createInventory(p,e.getInventory().getSize(), e.getView().getTitle()));
                         }
                     });
         }
 
         //einzelne passive
         if(e.getView().getTitle().split(" > ").length==3 && e.getView().getTitle().split(" > ")[1].equalsIgnoreCase("Passive")
-                && utilitys.passiveliste.stream().filter(sp -> sp.getErkennung().equalsIgnoreCase(e.getView().getTitle().split(" > ")[2])).findFirst().isPresent()){
-            utilitys.passiveliste.stream().filter(pa -> pa.getErkennung().equals(e.getView().getTitle().split(" > ")[2])).findFirst().ifPresent(pa -> {
-                e.setCancelled(true);
-                switch (e.getSlot()){
-                    case 18:
-                        p.openInventory(Bukkit.createInventory(p,54, "Grund Auswahl > Passive"));
+                && utilitys.passiveliste.containsKey(e.getView().getTitle().split(" > ")[2])){
+            Passive pa = utilitys.passiveliste.get(e.getView().getTitle().split(" > ")[2]);
+            e.setCancelled(true);
+            switch (e.getSlot()){
+                case 18:
+                    p.openInventory(Bukkit.createInventory(p,54, "Grund Auswahl > Passive"));
+                    return;
+                case 20:
+                    pa.setToggle(!pa.getToggle());
+                    p.openInventory(Bukkit.createInventory(p,e.getInventory().getSize(), e.getView().getTitle()));
+                    return;
+                case 22:
+                    if(e.getAction().equals(InventoryAction.PICKUP_HALF)){
+                        p.openInventory(Bukkit.createInventory(p,27, "CustemModel Editor > "+pa.getTicker()));
                         return;
-                    case 20:
-                        pa.setToggle(!pa.getToggle());
-                        p.openInventory(Bukkit.createInventory(p,e.getInventory().getSize(), e.getView().getTitle()));
-                        return;
-                    case 22:
-                        if(e.getAction().equals(InventoryAction.PICKUP_HALF)){
-                            p.openInventory(Bukkit.createInventory(p,27, "Grund Auswahl > Passive > "+pa.getTicker()));
-                            return;
-                        } else {
-                            extras.openStringAnvilgui(p, Bukkit.createInventory(p, e.getInventory().getSize(), e.getView().getTitle()),
-                                    e.getView().getTitle() + " > " + "Ticker", pa.getTicker(), sti -> {
-                                        pa.setTicker(sti);
-                                    });
-                        }
-                        break;
-                    default:
+                    } else {
                         extras.openStringAnvilgui(p, Bukkit.createInventory(p, e.getInventory().getSize(), e.getView().getTitle()),
-                                e.getView().getTitle() + " > " + e.getCurrentItem().getItemMeta().getDisplayName().split(":")[0], String.valueOf(pa.getPassive().get(e.getCurrentItem().getItemMeta().getDisplayName().split(":")[0])),
-                                sti -> {
-                                    pa.getPassive().put(e.getCurrentItem().getItemMeta().getDisplayName().split(":")[0], Integer.valueOf(sti));
+                                e.getView().getTitle() + " > " + "Ticker", pa.getTicker(), sti -> {
+                                    pa.setTicker(sti);
                                 });
-                        break;
-                }
-            });
+                    }
+                    break;
+                default:
+                    extras.openStringAnvilgui(p, Bukkit.createInventory(p, e.getInventory().getSize(), e.getView().getTitle()),
+                            e.getView().getTitle() + " > " + e.getCurrentItem().getItemMeta().getDisplayName().split(":")[0], String.valueOf(pa.getWerte().get(e.getCurrentItem().getItemMeta().getDisplayName().split(":")[0])),
+                            sti -> {
+                                pa.getWerte().put(e.getCurrentItem().getItemMeta().getDisplayName().split(":")[0], Integer.valueOf(sti));
+                            });
+                    break;
+            }
             return;
         }
 
@@ -255,10 +257,10 @@ public class guiclicker implements Listener {
                     utilitys.einstellungen.setKampfdauer(utilitys.einstellungen.getKampfdauer()+wert);
                     break;
                 case 24:
-                    utilitys.einstellungen.setSchadenfurkampfstart(utilitys.einstellungen.getSchadenfurkampfstart()-wert);
+                    utilitys.einstellungen.setKozeit(utilitys.einstellungen.getKozeit()-wert);
                     break;
                 case 25:
-                    utilitys.einstellungen.setSchadenfurkampfstart(utilitys.einstellungen.getSchadenfurkampfstart()+wert);
+                    utilitys.einstellungen.setKozeit(utilitys.einstellungen.getKozeit()+wert);
                     break;
                 case 33:
                     utilitys.einstellungen.setStandartwaffenkosten(utilitys.einstellungen.getStandartwaffenkosten()-wert);

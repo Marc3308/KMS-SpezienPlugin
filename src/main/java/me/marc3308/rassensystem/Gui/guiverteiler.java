@@ -18,7 +18,6 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.text.DecimalFormat;
@@ -85,8 +84,8 @@ public class guiverteiler implements Listener {
                     meta.setDisplayName(ChatColor.GREEN + "Kampf grund werte");
                     meta.setLore(new ArrayList<String>() {{
                         add("Klick to Edit:");
-                        add("§f§nSchaden im Kampf:§r         "+ utilitys.einstellungen.getSchadenimkampf()+"%  §f§nKampfdauer:§r "+ utilitys.einstellungen.getKampfdauer()+"sec");
-                        add("§f§nSchaden ohne Ausdauer:§r "+ utilitys.einstellungen.getSchadenohneausdauer()+"%  §f§nKampf Schwelle:§r "+ utilitys.einstellungen.getSchadenfurkampfstart()+"sec");
+                        add("§f§nSchaden im Kampf:§r         "+ utilitys.einstellungen.getSchadenimkampf()+"%  §f§nMax Kampfdauer:§r "+ utilitys.einstellungen.getKampfdauer()+"sec");
+                        add("§f§nSchaden ohne Ausdauer:§r "+ utilitys.einstellungen.getSchadenohneausdauer()+"%  §f§nKo Zeit:§r "+ ((int) utilitys.einstellungen.getKozeit()/60)+":"+utilitys.einstellungen.getKozeit()%60+"sec");
                         add("§f§nRegeneration im Kampf:§r   "+ utilitys.einstellungen.getRegenerationimkampf()+"%  §f§nWaffenkosten:§r "+ utilitys.einstellungen.getStandartwaffenkosten());
                     }});
                     setItemMeta(meta);
@@ -164,10 +163,9 @@ public class guiverteiler implements Listener {
 
                 inv.setItem(23,new ItemStack(Material.NETHER_STAR){{
                     ItemMeta meta = getItemMeta();
-                    meta.setDisplayName("§7§nSchaden Kampf Schwälle:§r "+ utilitys.einstellungen.getSchadenfurkampfstart()+"sec");
+                    meta.setDisplayName("§7§nKo Zeit:§r "+ ((int) utilitys.einstellungen.getKozeit()/60)+":"+utilitys.einstellungen.getKozeit()%60+"sec");
                     meta.setLore(new ArrayList<String>(){{
-                        add("§7Die schwelle an Schaden die der Spieler");
-                        add("§7ereichen muss um den Kampfmodus zu Starten");
+                        add("§7Die Dauer die Ein Spieler Ko ist");
                     }});
                     setItemMeta(meta);
                 }});
@@ -239,7 +237,7 @@ public class guiverteiler implements Listener {
                 int Seitenzahl = e.getView().getTitle().split(" : ").length==1 ? 1 : Integer.valueOf(e.getView().getTitle().split(" : ")[1].split(" & ")[0]);
                 setStandartarray(inv,Seitenzahl);
 
-                ArrayList<Spezies> thislist= new ArrayList<Spezies>(utilitys.spezienliste);
+                ArrayList<Spezies> thislist= new ArrayList<Spezies>(utilitys.spezienliste.values());
 
                 //filter system
                 if(e.getView().getTitle().split(" & ").length==2){
@@ -251,7 +249,7 @@ public class guiverteiler implements Listener {
                     if (thislist.indexOf(sp) >= 44 * (Seitenzahl-1) && thislist.indexOf(sp) <= 44 * Seitenzahl) {
                         inv.setItem(inv.firstEmpty(), new ItemStack(extras.getCustemModel(sp.getTicker()).getModelBlock()){{
                             ItemMeta meta = getItemMeta();
-                            meta.getPersistentDataContainer().set(new NamespacedKey(KMSCustemModels.getPlugin(),"kurzel"), PersistentDataType.STRING, sp.getErkennung());
+                            meta.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING, sp.getErkennung());
                             meta.setDisplayName(extras.getCustemModel(sp.getTicker()).getModelName());
                             meta.setLore(new ArrayList<String>(extras.getCustemModel(sp.getTicker()).getModelBeschreibung()) {{
                                 add("");
@@ -259,8 +257,9 @@ public class guiverteiler implements Listener {
                                 add("§cLeben:§f "+sp.getLeben()+"%   §cLebenreg:§f "+sp.getLebenreg()+"%");
                                 add("§eAusdauer:§f "+sp.getAusdauer()+"%   §eAusdauerreg:§f "+sp.getAusreg()+"%");
                                 add("§9Mana:§f "+sp.getMana()+"%   §9Manareg:§f "+sp.getManareg()+"%");
+                                add("§6Größe:§f "+sp.getGrose());
                                 add("Passiven:");
-                                sp.getPassiven().forEach(pa -> add((sp.getPassiven().indexOf(pa)+1)+". "+extras.getCustemModel(utilitys.passiveliste.stream().filter(pas -> pas.getErkennung().equals(pa)).findFirst().get().getTicker()).getModelName()));
+                                sp.getPassiven().forEach(pa -> add((sp.getPassiven().indexOf(pa)+1)+". "+extras.getCustemModel(utilitys.passiveliste.get(pa).getTicker()).getModelName()));
                                 add("");
                                 add("§eLinksklick um die Spezies zu editieren");
                                 add("§cRechtsklick um die Spezies zu löschen");
@@ -275,99 +274,106 @@ public class guiverteiler implements Listener {
 
             //einzelne spezien
             if(e.getView().getTitle().split(" > ").length==3 && e.getView().getTitle().split(" > ")[1].equalsIgnoreCase("Spezies")
-                    && utilitys.spezienliste.stream().filter(sp -> sp.getErkennung().equalsIgnoreCase(e.getView().getTitle().split(" > ")[2])).findFirst().isPresent()){
-                utilitys.spezienliste.stream().filter(sp -> sp.getErkennung().equalsIgnoreCase(e.getView().getTitle().split(" > ")[2])).findFirst().ifPresent(sp -> {
-
-                    for (int i=0; i<6;i++){
-                        String tiker=i==0 ? "l" : i==1 ? "lr" : i==2 ? "a" : i==3 ? "ar" : i==4 ? "m" : "mr";
-                        double wert = i==0 ? sp.getLeben() : i==1 ? sp.getLebenreg() : i==2 ? sp.getAusdauer() : i==3 ? sp.getAusreg() : i==4 ? sp.getMana() : sp.getManareg();
-                        inv.setItem(i==0 ? 11 : i==1 ? 12 : i==2 ? 20 : i==3 ? 21 : i==4 ? 29 : 30,
-                                new ItemStack(extras.getCustemModel(tiker).getModelBlock()){{
-                                    ItemMeta meta = getItemMeta();
-                                    meta.setDisplayName("§nSpezies "+extras.getCustemModel(tiker).getModelName()+":§r "+ (wert>0 ? "+"+new DecimalFormat("#.#").format(wert) : new DecimalFormat("#.#").format(wert))+"%");
-                                    meta.setCustomModelData(extras.getCustemModel(tiker).getModelData());
-                                    meta.setLore(new ArrayList<String>() {{
-                                        add("§fDas Grund "+extras.getCustemModel(tiker).getModelName()+" des Spielers");
-                                        add("");
-                                        add("§eLinksklick um den wert zu verändern");
-                                    }});
-                                    setItemMeta(meta);
+                    && utilitys.spezienliste.containsKey(e.getView().getTitle().split(" > ")[2])){
+                Spezies sp = utilitys.spezienliste.get(e.getView().getTitle().split(" > ")[2]);
+                for (int i=0; i<6;i++){
+                    String tiker=i==0 ? "l" : i==1 ? "lr" : i==2 ? "a" : i==3 ? "ar" : i==4 ? "m" : "mr";
+                    double wert = i==0 ? sp.getLeben() : i==1 ? sp.getLebenreg() : i==2 ? sp.getAusdauer() : i==3 ? sp.getAusreg() : i==4 ? sp.getMana() : sp.getManareg();
+                    inv.setItem(i==0 ? 11 : i==1 ? 12 : i==2 ? 20 : i==3 ? 21 : i==4 ? 29 : 30,
+                            new ItemStack(extras.getCustemModel(tiker).getModelBlock()){{
+                                ItemMeta meta = getItemMeta();
+                                meta.setDisplayName("§nSpezies "+extras.getCustemModel(tiker).getModelName()+":§r "+ (wert>0 ? "+"+new DecimalFormat("#.#").format(wert) : new DecimalFormat("#.#").format(wert))+"%");
+                                meta.setCustomModelData(extras.getCustemModel(tiker).getModelData());
+                                meta.setLore(new ArrayList<String>() {{
+                                    add("§fDas Grund "+extras.getCustemModel(tiker).getModelName()+" des Spielers");
+                                    add("");
+                                    add("§eLinksklick um den wert zu verändern");
                                 }});
-                    }
+                                setItemMeta(meta);
+                            }});
+                }
 
-                    inv.setItem(14,new ItemStack(extras.getCustemModel(sp.getTicker()).getModelBlock()){{
-                        ItemMeta meta = getItemMeta();
-                        meta.setDisplayName(extras.getCustemModel(sp.getTicker()).getModelName());
-                        meta.setCustomModelData(extras.getCustemModel(sp.getTicker()).getModelData());
-                        meta.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING, sp.getTicker());
-                        meta.setLore(new ArrayList<String>(extras.getCustemModel(sp.getTicker()).getModelBeschreibung()) {{
-                            add("Ticker:§f "+sp.getTicker());
-                            add("");
-                            add("§eLinksklick um Ticker zu editieren");
-                            add("§aRechtsklick zum Ticker zu springen");
-                        }});
-                        setItemMeta(meta);
+                inv.setItem(14,new ItemStack(extras.getCustemModel(sp.getTicker()).getModelBlock()){{
+                    ItemMeta meta = getItemMeta();
+                    meta.setDisplayName(extras.getCustemModel(sp.getTicker()).getModelName());
+                    meta.setCustomModelData(extras.getCustemModel(sp.getTicker()).getModelData());
+                    meta.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING, sp.getTicker());
+                    meta.setLore(new ArrayList<String>(extras.getCustemModel(sp.getTicker()).getModelBeschreibung()) {{
+                        add("Ticker:§f "+sp.getTicker());
+                        add("");
+                        add("§eLinksklick um Ticker zu editieren");
+                        add("§aRechtsklick zum Ticker zu springen");
                     }});
-                    inv.setItem(32,new ItemStack(extras.getCustemModel("pa").getModelBlock()){{
-                        ItemMeta meta = getItemMeta();
-                        meta.setDisplayName(extras.getCustemModel("pa").getModelName());
-                        meta.setCustomModelData(extras.getCustemModel("pa").getModelData());
-                        meta.setLore(new ArrayList<>(){{
-                            add("Passiven:");
-                            sp.getPassiven().forEach(pa -> add((sp.getPassiven().indexOf(pa)+1)+". "+extras.getCustemModel(utilitys.passiveliste.stream().filter(pas -> pas.getErkennung().equals(pa)).findFirst().get().getTicker()).getModelName()));
-                            add("");
-                            add("§eLinksklick um die passiven zu editieren");
-                        }});
-                        setItemMeta(meta);
+                    setItemMeta(meta);
+                }});
+                inv.setItem(23,new ItemStack(Material.ARMOR_STAND){{
+                    ItemMeta meta = getItemMeta();
+                    meta.setDisplayName("§6§nGröße:§r "+sp.getGrose());
+                    meta.setLore(new ArrayList<String>() {{
+                        add("§6Die Größe des Spielers");
+                        add("");
+                        add("§eLinksklick um die größe zu editieren");
                     }});
-                    inv.setItem(36,back);
-                });
+                    setItemMeta(meta);
+                }});
+                inv.setItem(32,new ItemStack(extras.getCustemModel("pa").getModelBlock()){{
+                    ItemMeta meta = getItemMeta();
+                    meta.setDisplayName(extras.getCustemModel("pa").getModelName());
+                    meta.setCustomModelData(extras.getCustemModel("pa").getModelData());
+                    meta.setLore(new ArrayList<>(){{
+                        add("Passiven:");
+                        sp.getPassiven().forEach(pa -> add((sp.getPassiven().indexOf(pa)+1)+". "+extras.getCustemModel(utilitys.passiveliste.get(pa).getTicker()).getModelName()));
+                        add("");
+                        add("§eLinksklick um die passiven zu editieren");
+                    }});
+                    setItemMeta(meta);
+                }});
+                inv.setItem(36,back);
             }
 
             if(e.getView().getTitle().split(" > ").length==4 && e.getView().getTitle().split(" > ")[1].equalsIgnoreCase("Spezies")
-                    && utilitys.spezienliste.stream().filter(sp -> sp.getErkennung().equalsIgnoreCase(e.getView().getTitle().split(" > ")[2])).findFirst().isPresent()){
-                utilitys.spezienliste.stream().filter(sp -> sp.getErkennung().equalsIgnoreCase(e.getView().getTitle().split(" > ")[2])).findFirst().ifPresent(sp -> {
-                    int Seitenzahl = e.getView().getTitle().split(" : ").length==1 ? 1 : Integer.valueOf(e.getView().getTitle().split(" : ")[1].split(" & ")[0]);
-                    setStandartarray(inv,Seitenzahl);
-                    inv.setItem(inv.getSize()-7,new ItemStack(Material.AIR));
+                    && utilitys.spezienliste.containsKey(e.getView().getTitle().split(" > ")[2])){
+                Spezies sp = utilitys.spezienliste.get(e.getView().getTitle().split(" > ")[2]);
+                int Seitenzahl = e.getView().getTitle().split(" : ").length==1 ? 1 : Integer.valueOf(e.getView().getTitle().split(" : ")[1].split(" & ")[0]);
+                setStandartarray(inv,Seitenzahl);
+                inv.setItem(inv.getSize()-7,new ItemStack(Material.AIR));
 
-                    ArrayList<Passive> thislist= new ArrayList<Passive>(utilitys.passiveliste);
+                ArrayList<Passive> thislist= new ArrayList<Passive>(utilitys.passiveliste.values());
 
-                    //filter system
-                    if(e.getView().getTitle().split(" & ").length==2){
-                        String filter = e.getView().getTitle().split(" & ")[1];
-                        thislist.sort(Comparator.comparingInt(pa -> getSimilarityScore(extras.getCustemModel(pa.getTicker()).getModelName() , filter)));
-                    }
+                //filter system
+                if(e.getView().getTitle().split(" & ").length==2){
+                    String filter = e.getView().getTitle().split(" & ")[1];
+                    thislist.sort(Comparator.comparingInt(pa -> getSimilarityScore(extras.getCustemModel(pa.getTicker()).getModelName() , filter)));
+                }
 
-                    for(Passive pa : thislist){
-                        if (thislist.indexOf(pa) >= 15 * (Seitenzahl-1) && thislist.indexOf(pa) <= 15 * Seitenzahl) {
-                            inv.setItem((1+(thislist.indexOf(pa)*3)-(thislist.indexOf(pa)*(Seitenzahl-1))), new ItemStack(extras.getCustemModel(pa.getTicker()).getModelBlock()){{
-                                ItemMeta meta = getItemMeta();
-                                meta.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING, pa.getErkennung());
-                                meta.setDisplayName(extras.getCustemModel(pa.getTicker()).getModelName());
-                                meta.setLore(new ArrayList<String>(extras.getCustemModel(pa.getTicker()).getModelBeschreibung()) {{
-                                    add("");
-                                    add("Ticker:§f "+pa.getTicker());
-                                    add("Togglebar:§f "+(pa.getToggle() ? "§aJa" : "§cNein"));
-                                    add("Werte:");
-                                    pa.getPassive().forEach((s,i) -> add(s+": "+i));
-                                    add("");
-                                    add("§eLinksklick um zur Passiven zu springen");
-                                }});
-                                meta.setCustomModelData(extras.getCustemModel(pa.getTicker()).getModelData());
-                                setItemMeta(meta);
+                for(Passive pa : thislist){
+                    if (thislist.indexOf(pa) >= 15 * (Seitenzahl-1) && thislist.indexOf(pa) <= 15 * Seitenzahl) {
+                        inv.setItem((1+(thislist.indexOf(pa)*3)-(thislist.indexOf(pa)*(Seitenzahl-1))), new ItemStack(extras.getCustemModel(pa.getTicker()).getModelBlock()){{
+                            ItemMeta meta = getItemMeta();
+                            meta.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING, pa.getErkennung());
+                            meta.setDisplayName(extras.getCustemModel(pa.getTicker()).getModelName());
+                            meta.setLore(new ArrayList<String>(extras.getCustemModel(pa.getTicker()).getModelBeschreibung()) {{
+                                add("");
+                                add("Ticker:§f "+pa.getTicker());
+                                add("Togglebar:§f "+(pa.getToggle() ? "§aJa" : "§cNein"));
+                                add("Werte:");
+                                pa.getWerte().forEach((s, i) -> add(s+": "+i));
+                                add("");
+                                add("§eLinksklick um zur Passiven zu springen");
                             }});
-                            inv.setItem(2+(thislist.indexOf(pa)*3)-(thislist.indexOf(pa)*(Seitenzahl-1)),new ItemStack(sp.getPassiven().contains(pa.getErkennung()) ? Material.GREEN_CONCRETE : Material.RED_CONCRETE){{
-                                ItemMeta meta = getItemMeta();
-                                meta.setDisplayName((sp.getPassiven().contains(pa.getErkennung()) ? "§aHinzugefügt" : "§cEntfernt"));
-                                meta.setLore(new ArrayList<String>() {{
-                                    add("§fHier klicken um die Passive hinzuzufügen/zu entfernen");
-                                }});
-                                setItemMeta(meta);
+                            meta.setCustomModelData(extras.getCustemModel(pa.getTicker()).getModelData());
+                            setItemMeta(meta);
+                        }});
+                        inv.setItem(2+(thislist.indexOf(pa)*3)-(thislist.indexOf(pa)*(Seitenzahl-1)),new ItemStack(sp.getPassiven().contains(pa.getErkennung()) ? Material.GREEN_CONCRETE : Material.RED_CONCRETE){{
+                            ItemMeta meta = getItemMeta();
+                            meta.setDisplayName((sp.getPassiven().contains(pa.getErkennung()) ? "§aHinzugefügt" : "§cEntfernt"));
+                            meta.setLore(new ArrayList<String>() {{
+                                add("§fHier klicken um die Passive hinzuzufügen/zu entfernen");
                             }});
-                        }
+                            setItemMeta(meta);
+                        }});
                     }
-                });
+                }
             }
 
             if(e.getView().getTitle().split(" : ")[0].equalsIgnoreCase("Grund Auswahl > Passive")){
@@ -375,7 +381,7 @@ public class guiverteiler implements Listener {
                 setStandartarray(inv,Seitenzahl);
                 inv.setItem(inv.getSize()-7,new ItemStack(Material.AIR));
 
-                ArrayList<Passive> thislist= new ArrayList<Passive>(utilitys.passiveliste);
+                ArrayList<Passive> thislist= new ArrayList<Passive>(utilitys.passiveliste.values());
 
                 //filter system
                 if(e.getView().getTitle().split(" & ").length==2){
@@ -394,7 +400,7 @@ public class guiverteiler implements Listener {
                                 add("Ticker:§f "+pa.getTicker());
                                 add("Togglebar:§f "+(pa.getToggle() ? "§aJa" : "§cNein"));
                                 add("Werte:");
-                                pa.getPassive().forEach((s,i) -> add(s+": "+i));
+                                pa.getWerte().forEach((s, i) -> add(s+": "+i));
                                 add("");
                                 add("§eLinksklick um die Passive zu editieren");
                                 add("§cRechtsklick um alles zurückzusetzen");
@@ -409,46 +415,44 @@ public class guiverteiler implements Listener {
 
             //einzelne passive
             if(e.getView().getTitle().split(" > ").length==3 && e.getView().getTitle().split(" > ")[1].equalsIgnoreCase("Passive")
-                    && utilitys.passiveliste.stream().filter(sp -> sp.getErkennung().equalsIgnoreCase(e.getView().getTitle().split(" > ")[2])).findFirst().isPresent()){
-                utilitys.passiveliste.stream().filter(pa -> pa.getErkennung().equals(e.getView().getTitle().split(" > ")[2])).findFirst().ifPresent(pa -> {
-
-                    pa.getPassive().forEach((s,i) ->{
-                        inv.setItem(inv.firstEmpty(), new ItemStack(Material.YELLOW_CONCRETE){{
-                            ItemMeta meta = getItemMeta();
-                            meta.setDisplayName(s+":§f "+ new DecimalFormat("#.#").format(i));
-                            meta.setLore(new ArrayList<String>() {{
-                                add("");
-                                add("§eLinksklick um den wert zu verändern");
-                            }});
-                            setItemMeta(meta);
-                        }});
-                    });
-
-                    inv.setItem(20,new ItemStack(pa.getToggle() ? Material.GREEN_CONCRETE : Material.RED_CONCRETE){{
+                    && utilitys.passiveliste.containsKey(e.getView().getTitle().split(" > ")[2])){
+                Passive pa = utilitys.passiveliste.get(e.getView().getTitle().split(" > ")[2]);
+                pa.getWerte().forEach((s, i) ->{
+                    inv.setItem(inv.firstEmpty(), new ItemStack(Material.YELLOW_CONCRETE){{
                         ItemMeta meta = getItemMeta();
-                        meta.setDisplayName("§nPassive Togglebar:§r "+(pa.getToggle() ? "§aJa" : "§cNein"));
+                        meta.setDisplayName(s+":§f "+ new DecimalFormat("#.#").format(i));
                         meta.setLore(new ArrayList<String>() {{
-                            add("§fHier klicken um den passive toggeln zu ändern");
-                        }});
-                        setItemMeta(meta);
-                    }});
-
-                    inv.setItem(22,new ItemStack(extras.getCustemModel(pa.getTicker()).getModelBlock()){{
-                        ItemMeta meta = getItemMeta();
-                        meta.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING, pa.getTicker());
-                        meta.setDisplayName(extras.getCustemModel(pa.getTicker()).getModelName());
-                        meta.setCustomModelData(extras.getCustemModel(pa.getTicker()).getModelData());
-                        meta.setLore(new ArrayList<String>(extras.getCustemModel(pa.getTicker()).getModelBeschreibung()) {{
-                            add("Ticker:§f "+pa.getTicker());
                             add("");
-                            add("§eLinksklick um Ticker zu editieren");
-                            add("§aRechtsklick zum Ticker zu springen");
+                            add("§eLinksklick um den wert zu verändern");
                         }});
                         setItemMeta(meta);
                     }});
-
-                    inv.setItem(18,back);
                 });
+
+                inv.setItem(20,new ItemStack(pa.getToggle() ? Material.GREEN_CONCRETE : Material.RED_CONCRETE){{
+                    ItemMeta meta = getItemMeta();
+                    meta.setDisplayName("§nPassive Togglebar:§r "+(pa.getToggle() ? "§aJa" : "§cNein"));
+                    meta.setLore(new ArrayList<String>() {{
+                        add("§fHier klicken um den passive toggeln zu ändern");
+                    }});
+                    setItemMeta(meta);
+                }});
+
+                inv.setItem(22,new ItemStack(extras.getCustemModel(pa.getTicker()).getModelBlock()){{
+                    ItemMeta meta = getItemMeta();
+                    meta.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING, pa.getTicker());
+                    meta.setDisplayName(extras.getCustemModel(pa.getTicker()).getModelName());
+                    meta.setCustomModelData(extras.getCustemModel(pa.getTicker()).getModelData());
+                    meta.setLore(new ArrayList<String>(extras.getCustemModel(pa.getTicker()).getModelBeschreibung()) {{
+                        add("Ticker:§f "+pa.getTicker());
+                        add("");
+                        add("§eLinksklick um Ticker zu editieren");
+                        add("§aRechtsklick zum Ticker zu springen");
+                    }});
+                    setItemMeta(meta);
+                }});
+
+                inv.setItem(18,back);
                 return;
             }
 

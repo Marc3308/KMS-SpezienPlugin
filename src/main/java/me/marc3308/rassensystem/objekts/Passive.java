@@ -25,7 +25,7 @@ public class Passive {
         return toggle;
     }
 
-    public HashMap<String, Integer> getPassive() {
+    public HashMap<String, Integer> getWerte() {
         return passive;
     }
 

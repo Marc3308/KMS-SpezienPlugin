@@ -16,10 +16,13 @@ public class Spezies {
     private double mana; //grund mana des spielers %
     private double manareg; //grund mana des spielers %
 
+    //größe
+    private double grose;
+
     //passiven
     private ArrayList<String> passiven;
 
-    public Spezies(String ticker, String erkennung, double leben, double lebenreg, double ausdauer, double ausreg, double mana, double manareg, ArrayList<String> passiven) {
+    public Spezies(String ticker, String erkennung, double leben, double lebenreg, double ausdauer, double ausreg, double mana, double manareg,double grose, ArrayList<String> passiven) {
         this.ticker = ticker;
         this.erkennung = erkennung;
         this.leben = leben;
@@ -28,7 +31,16 @@ public class Spezies {
         this.ausreg = ausreg;
         this.mana = mana;
         this.manareg = manareg;
+        this.grose = grose;
         this.passiven = passiven;
+    }
+
+    public double getGrose() {
+        return grose;
+    }
+
+    public void setGrose(double grose) {
+        this.grose = grose;
     }
 
     public String getErkennung() {

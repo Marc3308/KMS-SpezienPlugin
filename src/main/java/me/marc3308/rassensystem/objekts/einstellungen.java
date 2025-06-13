@@ -10,7 +10,7 @@ public class einstellungen {
     private int Schadenimkampf; //Schaden den man im kampf bekommt %
     private int Schadenohneausdauer; //Schaden wenn man keine ausdauer mehr hat %
     private int Regenerationimkampf; //Regeneration im kampf %
-    private int Schadenfurkampfstart; //Schaden der eriecht werden muss um den kampf zu starten +
+    private int kozeit; //zeit die der spieler ko ist+
     private int Kampfdauer; //die gesamtdauer des kampfes nach begin und lasthit +
     private int standartwaffenkosten; //die standart kosten die eine waffe hat wenn sie nicht in der liste ist +
     private HashMap<Material, Double> waffenschlagkosnte; //ausdauerkosten die die waffe beim angriff hat +
@@ -39,7 +39,7 @@ public class einstellungen {
     private double bewegungsgeschwindigkeit; //grund bewegungsgeschwindigkeit des spielers %
     private int skillslots; //start skillslots des spielers +
 
-    public einstellungen(int Schadenimkampf,int Schadenohneausdauer,int Regenerationimkampf,int Schadenfurkampfstart,int Kampfdauer,int standartwaffenkosten,HashMap<Material, Double> waffenschlagkosnte
+    public einstellungen(int Schadenimkampf,int Schadenohneausdauer,int Regenerationimkampf,int kozeit,int Kampfdauer,int standartwaffenkosten,HashMap<Material, Double> waffenschlagkosnte
             ,double leben,double lebenreg,double ausdauer,double ausreg,double mana,double manareg
             ,double waffenschaden,double waffengeschwindigkeit,double waffencritdmg,double waffencritchance
             ,double fahigkeitsgeschwindigkeit,double fahigkeitscritdmg,double fahigkeitscritchance,double fahigkeitsdmg
@@ -47,7 +47,7 @@ public class einstellungen {
         this.Schadenimkampf=Schadenimkampf;
         this.Schadenohneausdauer=Schadenohneausdauer;
         this.Regenerationimkampf=Regenerationimkampf;
-        this.Schadenfurkampfstart=Schadenfurkampfstart;
+        this.kozeit=kozeit;
         this.Kampfdauer=Kampfdauer;
         this.standartwaffenkosten=standartwaffenkosten;
         this.waffenschlagkosnte=waffenschlagkosnte;
@@ -121,8 +121,12 @@ public class einstellungen {
         return Regenerationimkampf;
     }
 
-    public int getSchadenfurkampfstart() {
-        return Schadenfurkampfstart;
+    public int getKozeit() {
+        return kozeit;
+    }
+
+    public void setKozeit(int kozeit) {
+        this.kozeit = kozeit;
     }
 
     public double getWaffenschaden() {
@@ -207,10 +211,6 @@ public class einstellungen {
 
     public void setRegenerationimkampf(int regenerationimkampf) {
         Regenerationimkampf = regenerationimkampf;
-    }
-
-    public void setSchadenfurkampfstart(int schadenfurkampfstart) {
-        Schadenfurkampfstart = schadenfurkampfstart;
     }
 
     public void setBewegungsgeschwindigkeit(double bewegungsgeschwindigkeit) {

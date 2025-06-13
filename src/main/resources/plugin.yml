@@ -2,18 +2,16 @@ name: Rassensystem
 version: '${project.version}'
 main: me.marc3308.rassensystem.Rassensystem
 depend: [zerotrust]
-api-version: 1.19
+api-version: 1.21.5
 
 permissions:
   Spezienspezialist:
     description: you are a spezien specialist
 
 commands:
-  spezienwahl:
-    description: you are beter then everybody
-  giverasse:
-    description: gives you the raze
-    permission: parteleitung
+  givespezies:
+    description: gives you the spezies
+    permission: Spezienspezialist
   spezieseditor:
     description: opens the spezien editor
     permission: Spezienspezialist

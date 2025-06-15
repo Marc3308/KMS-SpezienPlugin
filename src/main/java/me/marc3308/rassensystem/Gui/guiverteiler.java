@@ -347,8 +347,8 @@ public class guiverteiler implements Listener {
                 }
 
                 for(Passive pa : thislist){
-                    if (thislist.indexOf(pa) >= 15 * (Seitenzahl-1) && thislist.indexOf(pa) <= 15 * Seitenzahl) {
-                        inv.setItem((1+(thislist.indexOf(pa)*3)-(thislist.indexOf(pa)*(Seitenzahl-1))), new ItemStack(extras.getCustemModel(pa.getTicker()).getModelBlock()){{
+                    if (thislist.indexOf(pa) >= 15 * (Seitenzahl-1) && thislist.indexOf(pa) < 15 * Seitenzahl) {
+                        inv.setItem(1+(((thislist.indexOf(pa)-(15*(Seitenzahl-1)))*3)), new ItemStack(extras.getCustemModel(pa.getTicker()).getModelBlock()){{
                             ItemMeta meta = getItemMeta();
                             meta.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING, pa.getErkennung());
                             meta.setDisplayName(extras.getCustemModel(pa.getTicker()).getModelName());
@@ -364,7 +364,7 @@ public class guiverteiler implements Listener {
                             meta.setCustomModelData(extras.getCustemModel(pa.getTicker()).getModelData());
                             setItemMeta(meta);
                         }});
-                        inv.setItem(2+(thislist.indexOf(pa)*3)-(thislist.indexOf(pa)*(Seitenzahl-1)),new ItemStack(sp.getPassiven().contains(pa.getErkennung()) ? Material.GREEN_CONCRETE : Material.RED_CONCRETE){{
+                        inv.setItem(2+(((thislist.indexOf(pa)-(15*(Seitenzahl-1)))*3)),new ItemStack(sp.getPassiven().contains(pa.getErkennung()) ? Material.GREEN_CONCRETE : Material.RED_CONCRETE){{
                             ItemMeta meta = getItemMeta();
                             meta.setDisplayName((sp.getPassiven().contains(pa.getErkennung()) ? "§aHinzugefügt" : "§cEntfernt"));
                             meta.setLore(new ArrayList<String>() {{

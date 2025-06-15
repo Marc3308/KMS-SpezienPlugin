@@ -1,10 +1,10 @@
 package me.marc3308.rassensystem.kampfsystem;
 
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import me.marc3308.rassensystem.Rassensystem;
 import me.marc3308.rassensystem.utilitys;
 import org.bukkit.*;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,9 +12,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityDismountEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.event.player.*;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -23,9 +22,15 @@ public class KO implements Listener {
     @EventHandler
     public void playerdeath(EntityDeathEvent e){
         if(e.getEntity() instanceof Player p && p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "istko"), PersistentDataType.INTEGER)) {
+            p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), "seelenenergie"), PersistentDataType.INTEGER,
+                    p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), "seelenenergie"), PersistentDataType.INTEGER,100)-1);
             p.getLocation().getNearbyEntities(1,1,1).stream().filter(et -> et instanceof ArmorStand && ((ArmorStand) et).isSmall()).forEach(entity -> ((ArmorStand) entity).remove());
             p.getPersistentDataContainer().remove(new NamespacedKey(Rassensystem.getPlugin(), "istko"));
         } else if(e.getEntity() instanceof Player p){
+
+            for(ItemStack it : p.getInventory().getArmorContents())if(it!=null)p.getWorld().dropItemNaturally(p.getLocation(), it);
+            p.getInventory().setArmorContents(null);
+
             e.setCancelled(true);
             if(p.getInventory().getItemInOffHand()!=null){
                 p.getWorld().dropItemNaturally(p.getLocation(),p.getInventory().getItemInOffHand());
@@ -71,21 +76,29 @@ public class KO implements Listener {
     }
 
     @EventHandler
-    public void onEntityDismount(EntityDismountEvent e) { //todo test
-        if (e.getEntity() instanceof Player p && p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "istko"), PersistentDataType.INTEGER))e.setCancelled(true);
+    public void armor(PlayerAttemptPickupItemEvent e){
+        Player p = e.getPlayer();
+        if(p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "istko"), PersistentDataType.INTEGER))e.setCancelled(true);
     }
 
     @EventHandler
-    public void oninv(PlayerInteractEntityEvent e){ //todo test
-        if(e.getRightClicked() instanceof Player p && p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "istko"), PersistentDataType.INTEGER))e.getPlayer().openInventory(p.getInventory());
+    public void onEntityDismount(EntityDismountEvent e) {
+        if (e.getEntity() instanceof Player p && p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "istko"), PersistentDataType.INTEGER) && e.getDismounted() instanceof ArmorStand)e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void oninv(PlayerInteractEntityEvent e){
+        if(e.getRightClicked() instanceof Player p && p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "istko"), PersistentDataType.INTEGER)){
+            e.getPlayer().openInventory(p.getInventory());
+        }
     }
 
     @EventHandler
     public void onsneak(PlayerToggleSneakEvent e){
 
         Player p=e.getPlayer();
-        if(p.isSneaking() && !p.getPassengers().isEmpty()){
-            p.getPassengers().removeAll(p.getPassengers());
+        if(!p.isSneaking() && !p.getPassengers().isEmpty()){
+            p.removePassenger(p.getPassengers().get(0));
         } else if(!p.isSneaking() && p.getPassengers().isEmpty()){
             p.getNearbyEntities(1,1,1).stream().filter(et -> et instanceof Player && ((Player) et).getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "istko"), PersistentDataType.INTEGER)).findFirst().ifPresent(
                 pl -> {
@@ -106,8 +119,8 @@ public class KO implements Listener {
 
                             i[0]++;
                             if(i[0] >= 5) {
-                                pl.getLocation().getNearbyEntities(1,1,1).stream().filter(et -> et instanceof ArmorStand && ((ArmorStand) et).isSmall()).forEach(entity -> ((ArmorStand) entity).remove());
-                                Bukkit.getScheduler().runTaskLater(Rassensystem.getPlugin(), () -> p.setPassenger(pl), 10L);
+                                pl.getLocation().getNearbyEntities(2,2,2).stream().filter(et -> et instanceof ArmorStand && ((ArmorStand) et).isSmall()).forEach(entity -> ((ArmorStand) entity).remove());
+                                p.addPassenger(pl);
                                 cancel();
                                 return;
                             }

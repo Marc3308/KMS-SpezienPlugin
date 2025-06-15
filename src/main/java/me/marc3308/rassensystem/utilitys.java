@@ -5,6 +5,7 @@ import me.marc3308.rassensystem.objekts.Passive;
 import me.marc3308.rassensystem.objekts.Spezies;
 import me.marc3308.rassensystem.objekts.einstellungen;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.boss.BarColor;
@@ -16,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +32,7 @@ public class utilitys {
     public static einstellungen einstellungen;
     public static HashMap<String,Spezies> spezienliste = new HashMap<>();
     public static HashMap<String,Passive> passiveliste = new HashMap<>();
+    public static HashMap<String,Long> timemap = new HashMap<>();
 
     public static void loadeinstellungen(){
 
@@ -192,32 +195,57 @@ public class utilitys {
             put("Kosten",2);
         }}));
         creatlist.put("nachtsicht",new Passive("nachtsicht","nachtsicht",true,new HashMap<String,Integer>()));
-
-
-
-
-
-
-        creatlist.put("bambusessen",new Passive("bambusessen","bambusessen",false,new HashMap<String,Integer>(){{
-            put("Essen",2);
-            put("Sättigung",4);
-            put("EffectStärke",5);
-            put("EffectDauer",5);
+        creatlist.put("flugboost",new Passive("flugboost","flugboost",false,new HashMap<String,Integer>(){{
+            put("Kosten",5);
+            put("Stärke",5);
         }}));
-        creatlist.put("seedessen",new Passive("seedessen","seedessen",false,new HashMap<String,Integer>(){{
-            put("Essen",2);
-            put("Sättigung",4);
+        creatlist.put("hochflug",new Passive("hochflug","hochflug",false,new HashMap<String,Integer>(){{
+            put("Kosten",5);
+            put("Stärke",5);
+            put("winkel",-20);
         }}));
-        creatlist.put("rotfesheesen",new Passive("rotfesheesen","rotfesheesen",false,new HashMap<String,Integer>(){{
-            put("Essen",2);
-            put("Sättigung",4);
+        creatlist.put("feuerhand",new Passive("feuerhand","feuerhand",false,new HashMap<String,Integer>(){{
+            put("dauer",2);
         }}));
-        creatlist.put("rotfesheesen",new Passive("bambusessen","bambusessen",false,new HashMap<String,Integer>(){{
-            put("Essen",2);
-            put("Sättigung",4);
-            put("EffectStärke",5);
-            put("EffectDauer",5);
+        creatlist.put("feuerfest",new Passive("feuerfest","feuerfest",true,new HashMap<String,Integer>()));
+        creatlist.put("wasserlauf",new Passive("wasserlauf","wasserlauf",true,new HashMap<String,Integer>()));
+        creatlist.put("wasseratmen",new Passive("wasseratmen","wasseratmen",true,new HashMap<String,Integer>()));
+        creatlist.put("unterwassersspeed",new Passive("unterwassersspeed","unterwassersspeed",true,new HashMap<String,Integer>()));
+        creatlist.put("keinfallschaden",new Passive("keinfallschaden","keinfallschaden",true,new HashMap<String,Integer>()));
+        creatlist.put("federfall",new Passive("federfall","federfall",false,new HashMap<String,Integer>(){{
+            put("Kosten",2);
         }}));
+        creatlist.put("bounce",new Passive("bounce","bounce",true,new HashMap<String,Integer>(){{
+            put("Stärke",80);
+        }}));
+        creatlist.put("steinversteck",new Passive("steinversteck","steinversteck",false,new HashMap<String,Integer>(){{
+            put("Kosten",2);
+            put("Reichweite",2);
+        }}));
+        creatlist.put("erdatmung",new Passive("erdatmung","erdatmung",true,new HashMap<String,Integer>()));
+        creatlist.put("schattenstand",new Passive("schattenstand","schattenstand",false,new HashMap<String,Integer>(){{
+            put("Kosten",2);
+            put("Stillstehedauer",5);
+        }}));
+        creatlist.put("schattenspeed",new Passive("schattenspeed","schattenspeed",true,new HashMap<String,Integer>(){{
+            put("Stärke",50);
+        }}));
+        creatlist.put("doppelsprung",new Passive("doppelsprung","doppelsprung",true,new HashMap<String,Integer>(){{
+            put("Kosten",5);
+            put("Stärke",3);
+        }}));
+        creatlist.put("mediation",new Passive("mediation","mediation",true,new HashMap<String,Integer>(){{
+            put("Stärke",50);
+        }}));
+        creatlist.put("waldscann",new Passive("waldscann","waldscann",true,new HashMap<String,Integer>(){{
+            put("Kosten",7);
+            put("größe",50);
+        }}));
+        creatlist.put("autoernte",new Passive("autoernte","autoernte",true,new HashMap<String,Integer>(){{
+            put("Kosten",1);
+            put("größe",10);
+        }}));
+
 
         //neu hinzu alte weg
         creatlist.forEach((k,p) -> {
@@ -263,7 +291,7 @@ public class utilitys {
         return Maxmausdauer >= Maxmana ? "ausdauer" : "mana";
     }
 
-    public static void showbar(Player p){
+    public static void showbar(Player p, int delay){
 
         double now = p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE);
         Spezies sp = utilitys.spezienliste.get(p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(),"rasse"), PersistentDataType.STRING,"Non"));
@@ -284,7 +312,16 @@ public class utilitys {
                 : now>=((max/100.0)*10) ? 0.2
                 : 0.1);
         bar.addPlayer(p);
-        Bukkit.getScheduler().runTaskLater(Rassensystem.getPlugin(), () -> bar.removeAll(), 20L);
+        Bukkit.getScheduler().runTaskLater(Rassensystem.getPlugin(), () -> bar.removeAll(), delay);
+    }
+
+    public static boolean kannpassive(Player p, String passive) {
+        if(!p.getGameMode().equals(GameMode.SURVIVAL))return false;
+        if(!utilitys.spezienliste.containsKey(p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(),"rasse"), PersistentDataType.STRING,"Non")))return false;
+        if(!utilitys.spezienliste.get(p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(),"rasse"), PersistentDataType.STRING,"Non")).getPassiven().contains(passive))return false;
+        if(!p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), passive), PersistentDataType.BOOLEAN,true))return false;
+        if(utilitys.passiveliste.get(passive).getWerte().containsKey("Kosten") && p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE)<=utilitys.passiveliste.get(passive).getWerte().get("Kosten"))return false;
+        return true;
     }
 
 }

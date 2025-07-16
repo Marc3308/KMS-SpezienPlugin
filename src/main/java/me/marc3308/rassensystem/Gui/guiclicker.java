@@ -103,7 +103,7 @@ public class guiclicker implements Listener {
                     }
 
                     extras.openStringAnvilgui(p, e.getInventory(),
-                            e.getView().getTitle() + " > " + (tiker.equals("tk") ? "Ticker": extras.getCustemModel(tiker).getModelName()), (tiker.equals("tk") ? sp.getTicker(): ""), sti -> {
+                            e.getView().getTitle() + " > " + (tiker.equals("tk") ? "Ticker": extras.getCustemModel(tiker).getModelName()), (tiker.equals("tk") ? sp.getTicker(): String.valueOf(wert)), sti -> {
                                 switch (tiker) {
                                     case "l":
                                         sp.setLeben(Double.valueOf(sti));

@@ -259,7 +259,7 @@ public class guiverteiler implements Listener {
                                 add("§9Mana:§f "+sp.getMana()+"%   §9Manareg:§f "+sp.getManareg()+"%");
                                 add("§6Größe:§f "+sp.getGrose());
                                 add("Passiven:");
-                                sp.getPassiven().forEach(pa -> add((sp.getPassiven().indexOf(pa)+1)+". "+extras.getCustemModel(utilitys.passiveliste.get(pa).getTicker()).getModelName()));
+                                sp.getPassiven().stream().filter(pa -> utilitys.passiveliste.containsKey(pa)).forEach(pa -> add((sp.getPassiven().indexOf(pa)+1)+". "+extras.getCustemModel(utilitys.passiveliste.get(pa).getTicker()).getModelName()));
                                 add("");
                                 add("§eLinksklick um die Spezies zu editieren");
                                 add("§cRechtsklick um die Spezies zu löschen");
@@ -322,7 +322,7 @@ public class guiverteiler implements Listener {
                     meta.setCustomModelData(extras.getCustemModel("pa").getModelData());
                     meta.setLore(new ArrayList<>(){{
                         add("Passiven:");
-                        sp.getPassiven().forEach(pa -> add((sp.getPassiven().indexOf(pa)+1)+". "+extras.getCustemModel(utilitys.passiveliste.get(pa).getTicker()).getModelName()));
+                        sp.getPassiven().stream().filter(pa -> utilitys.passiveliste.containsKey(pa)).forEach(pa -> add((sp.getPassiven().indexOf(pa)+1)+". "+extras.getCustemModel(utilitys.passiveliste.get(pa).getTicker()).getModelName()));
                         add("");
                         add("§eLinksklick um die passiven zu editieren");
                     }});

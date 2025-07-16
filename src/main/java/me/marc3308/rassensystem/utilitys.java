@@ -4,10 +4,7 @@ import me.marc3308.kMSCustemModels.extras;
 import me.marc3308.rassensystem.objekts.Passive;
 import me.marc3308.rassensystem.objekts.Spezies;
 import me.marc3308.rassensystem.objekts.einstellungen;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -245,7 +242,93 @@ public class utilitys {
             put("Kosten",1);
             put("größe",10);
         }}));
-
+        creatlist.put("erdlaufer",new Passive("erdlaufer","erdlaufer",true,new HashMap<String,Integer>(){{
+            put("Stärke",80);
+        }}));
+        creatlist.put("holyschaden",new Passive("holyschaden","holyschaden",true,new HashMap<String,Integer>(){{
+            put("Stärke",80);
+        }}));
+        creatlist.put("creaflug",new Passive("creaflug","creaflug",false,new HashMap<String,Integer>(){{
+            put("Geschwindigkeit",2);
+            put("Reichweite",2);
+        }}));
+        creatlist.put("untotenliebe",new Passive("untotenliebe","untotenliebe",true,new HashMap<String,Integer>()));
+        creatlist.put("verwirrung",new Passive("verwirrung","verwirrung",false,new HashMap<String,Integer>(){{
+            put("Kosten",4);
+            put("Stärke",50);
+            put("Dauer",5);
+            put("Chance",50);
+        }}));
+        creatlist.put("blutschlag",new Passive("blutschlag","blutschlag",false,new HashMap<String,Integer>(){{
+            put("Max",10);
+            put("Stärke",50);
+        }}));
+        creatlist.put("autoaim",new Passive("autoaim","autoaim",true,new HashMap<String,Integer>(){{
+            put("Kosten",3);
+            put("Chanche",50);
+        }}));
+        creatlist.put("fleischer",new Passive("fleischer","fleischer",true,new HashMap<String,Integer>(){{
+            put("Stärke",2);
+        }}));
+        creatlist.put("fleischliebhaber",new Passive("fleischliebhaber","fleischliebhaber",true,new HashMap<String,Integer>(){{
+            put("Stärke",8);
+        }}));
+        creatlist.put("steinschlager",new Passive("steinschlager","steinschlager",true,new HashMap<String,Integer>(){{
+            put("Max",7);
+        }}));
+        creatlist.put("steinlaufer",new Passive("steinlaufer","steinlaufer",true,new HashMap<String,Integer>(){{
+            put("Stärke",80);
+        }}));
+        creatlist.put("erzflusterer",new Passive("erzflusterer","erzflusterer",true,new HashMap<String,Integer>(){{
+            put("Kosten",1);
+        }}));
+        creatlist.put("fastboot",new Passive("fastboot","fastboot",true,new HashMap<String,Integer>()));
+        creatlist.put("xpsammler",new Passive("xpsammler","xpsammler",true,new HashMap<String,Integer>(){{
+            put("Stärke",80);
+        }}));
+        creatlist.put("fischer",new Passive("fischer","fischer",true,new HashMap<String,Integer>()));
+        creatlist.put("adrenalin",new Passive("adrenalin","adrenalin",true,new HashMap<String,Integer>(){{
+            put("Stärke",10);
+        }}));
+        creatlist.put("haltbar",new Passive("haltbar","haltbar",true,new HashMap<String,Integer>(){{
+            put("Chanche",40);
+        }}));
+        creatlist.put("woodschläger",new Passive("woodschläger","woodschläger",true,new HashMap<String,Integer>(){{
+            put("Max",7);
+        }}));
+        creatlist.put("feueratem",new Passive("feueratem","feueratem",true,new HashMap<String,Integer>(){{
+            put("Dauer",5);
+            put("Kosten",5);
+            put("Reichweite",3);
+        }}));
+        creatlist.put("eisatem",new Passive("eisatem","eisatem",true,new HashMap<String,Integer>(){{
+            put("Dauer",5);
+            put("Kosten",5);
+            put("Reichweite",5);
+            put("Schaden",2);
+        }}));
+        creatlist.put("erdatem",new Passive("erdatem","erdatem",true,new HashMap<String,Integer>(){{
+            put("Dauer",5);
+            put("Kosten",5);
+            put("Reichweite",5);
+        }}));
+        creatlist.put("lufatem",new Passive("lufatem","lufatem",true,new HashMap<String,Integer>(){{
+            put("Dauer",5);
+            put("Kosten",5);
+            put("Reichweite",5);
+            put("Schaden",2);
+        }}));
+        creatlist.put("schattenklon",new Passive("schattenklon","schattenklon",true,new HashMap<String,Integer>(){{
+            put("Dauer",3);
+            put("Kosten",5);
+        }}));
+        creatlist.put("huntersmark",new Passive("huntersmark","huntersmark",true,new HashMap<String,Integer>(){{
+            put("Dauer",3);
+        }}));
+        creatlist.put("jugment",new Passive("jugment","jugment",true,new HashMap<String,Integer>(){{
+            put("Dauer",3);
+            put("Kosten",5);
+        }}));
 
         //neu hinzu alte weg
         creatlist.forEach((k,p) -> {
@@ -277,7 +360,16 @@ public class utilitys {
             ItemMeta meta = getItemMeta();
             meta.setDisplayName(extras.getCustemModel(sp.getTicker()).getModelName());
             meta.setCustomModelData(extras.getCustemModel(sp.getTicker()).getModelData());
-            meta.setLore(extras.getCustemModel(sp.getTicker()).getModelBeschreibung());
+            meta.setLore(new ArrayList<>(extras.getCustemModel(sp.getTicker()).getModelBeschreibung()){{
+                add("");
+                add("§cLeben:§f "+sp.getLeben()+"%   §cLebenreg:§f "+sp.getLebenreg()+"%");
+                add("§eAusdauer:§f "+sp.getAusdauer()+"%   §eAusdauerreg:§f "+sp.getAusreg()+"%");
+                add("§9Mana:§f "+sp.getMana()+"%   §9Manareg:§f "+sp.getManareg()+"%");
+                add("§6Größe:§f "+sp.getGrose());
+                add("Passiven:");
+                sp.getPassiven().stream().filter(pa -> utilitys.passiveliste.containsKey(pa)).forEach(pa -> add((sp.getPassiven().indexOf(pa)+1)+". "+extras.getCustemModel(utilitys.passiveliste.get(pa).getTicker()).getModelName()));
+                add("");
+            }});
             meta.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(),"kurzel"), PersistentDataType.STRING,sp.getErkennung());
             meta.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(),"bind"), PersistentDataType.STRING,p.getUniqueId().toString());
             setItemMeta(meta);
@@ -322,6 +414,32 @@ public class utilitys {
         if(!p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), passive), PersistentDataType.BOOLEAN,true))return false;
         if(utilitys.passiveliste.get(passive).getWerte().containsKey("Kosten") && p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE)<=utilitys.passiveliste.get(passive).getWerte().get("Kosten"))return false;
         return true;
+    }
+
+    public static boolean isair(Location loc, int range){
+        for (int i = 0; i < range; i++) {
+            if(!loc.clone().subtract(0,i,0).getBlock().getType().equals(Material.AIR))return false;
+        }
+        return true;
+    }
+
+    public static void showcustembar(Player p, int delay, BossBar bar, int now, int max){
+
+        bar.setColor(now>=((max/100.0)*66.0) ? BarColor.GREEN
+                : now>=((max/100.0)*33.0) ? BarColor.YELLOW
+                : BarColor.RED);
+        bar.setProgress(now>=((max/100.0)*90) ? 1.0
+                : now>=((max/100.0)*80) ? 0.9
+                : now>=((max/100.0)*70) ? 0.8
+                : now>=((max/100.0)*60) ? 0.7
+                : now>=((max/100.0)*50) ? 0.6
+                : now>=((max/100.0)*40) ? 0.5
+                : now>=((max/100.0)*30) ? 0.4
+                : now>=((max/100.0)*20) ? 0.3
+                : now>=((max/100.0)*10) ? 0.2
+                : 0.1);
+        bar.addPlayer(p);
+        Bukkit.getScheduler().runTaskLater(Rassensystem.getPlugin(), () -> bar.removeAll(), delay);
     }
 
 }

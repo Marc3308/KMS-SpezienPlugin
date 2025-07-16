@@ -5,6 +5,7 @@ import me.marc3308.rassensystem.Gui.guiclicker;
 import me.marc3308.rassensystem.Gui.guiverteiler;
 import me.marc3308.rassensystem.Gui.openeditorcommand;
 import me.marc3308.rassensystem.command.getrasse;
+import me.marc3308.rassensystem.command.setrasse;
 import me.marc3308.rassensystem.eventlisteners.dringraseposion;
 import me.marc3308.rassensystem.kampfsystem.KO;
 import me.marc3308.rassensystem.kampfsystem.Kampf;
@@ -16,15 +17,13 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Ageable;
+import org.bukkit.block.data.type.Snow;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.Listener;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -32,6 +31,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -125,101 +125,6 @@ public final class Rassensystem extends JavaPlugin implements Listener {
                             final double[] pasivausdauer = {0};
                             final double[] passivleben = {0};
 
-                            //passive
-                            sp.getPassiven().stream().filter(pa -> p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), pa), PersistentDataType.BOOLEAN,true)).forEach(pa ->{
-                                //pa ist erkennung
-                                Passive pas =utilitys.passiveliste.get(pa);
-
-                                switch (pa){
-                                    case "flug":
-                                        if(p.isGliding()){
-                                            p.setAllowFlight(false);
-                                            if(p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE)>=pas.getWerte().get("Kosten")) {
-                                                p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE,
-                                                        p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE)-pas.getWerte().get("Kosten"));
-                                            } else {
-                                                p.setGliding(false);
-                                                p.setAllowFlight(true);
-                                            }
-                                            utilitys.showbar(p,20);
-                                        } else if(p.isOnGround()){
-                                            p.setAllowFlight(true);
-                                        }
-                                        break;
-                                    case "nachtsicht":
-                                        p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION,20*15,0,false,false));
-                                        break;
-                                    case "wasseratmen":
-                                        if(p.getLocation().getBlock().getType().equals(Material.WATER))p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING,20*3,0,false,false));
-                                        break;
-                                    case "unterwassersspeed":
-                                        if(p.getLocation().getBlock().getType().equals(Material.WATER))p.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE,20*3,0,false,false));
-                                        break;
-                                    case "federfall":
-                                        if(p.getLocation().subtract(0,1,0).getBlock().getType().equals(Material.AIR) && p.getLocation().subtract(0,2,0).getBlock().getType().equals(Material.AIR)
-                                                && p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE)>=pas.getWerte().get("Kosten")) {
-                                            p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE,
-                                                    p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE)-pas.getWerte().get("Kosten"));
-                                            p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING,20*2,0,false,false));
-                                            utilitys.showbar(p,20);
-                                        }
-                                        break;
-                                    case "schattenstand":
-                                        if(p.getLocation().getBlock().getLightLevel()<=7 && utilitys.timemap.containsKey(p.getUniqueId().toString())
-                                                && utilitys.timemap.get(p.getUniqueId().toString())+(pas.getWerte().get("Stillstehedauer")*1000)<=System.currentTimeMillis()
-                                                && p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE)>=pas.getWerte().get("Kosten")){
-                                            p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE,
-                                                    p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE)-pas.getWerte().get("Kosten"));
-                                            p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY,20*2,0,false,false));
-                                            utilitys.showbar(p,20);
-                                        }
-                                        break;
-                                    case "schattenspeed":
-                                        if(p.getLocation().getBlock().getLightLevel()<=7)speedmult[0] += pas.getWerte().get("Stärke");
-                                        break;
-                                    case "doppelsprung":
-                                        p.setAllowFlight(true);
-                                        break;
-                                    case "mediation":
-                                        p.getNearbyEntities(1,1,1).stream().filter(ar -> ar instanceof ArmorStand && ((ArmorStand) ar).getPassengers().getFirst().equals(p) && ((ArmorStand) ar).getCustomName().equals("meditation")).findFirst().ifPresent(ar -> {
-                                            pasivausdauer[0] += pas.getWerte().get("Stärke");
-                                            passivleben[0] += pas.getWerte().get("Stärke");
-                                            pasivmana[0] += pas.getWerte().get("Stärke");
-                                        });
-                                        break;
-                                    case "autoernte":
-                                        for (int x = -pas.getWerte().get("größe"); x <= pas.getWerte().get("größe"); x++) {
-                                            for (int z = -pas.getWerte().get("größe"); z <= pas.getWerte().get("größe"); z++) {
-                                                if(p.getLocation().add(x,0,z).getBlock().getBlockData() instanceof Ageable ag && ag.getAge()==ag.getMaximumAge()){
-                                                    if(!utilitys.kannpassive(p,pa))continue;
-                                                    p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE,
-                                                            p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE)-pas.getWerte().get("Kosten"));
-                                                    p.getWorld().spawnParticle(Particle.CLOUD,p.getLocation().add(x,0,z), 3, 0.3, 0.3, 0.3);
-                                                    p.getLocation().add(x,0,z).getBlock().getDrops().forEach(d -> p.getWorld().dropItemNaturally(p.getLocation(), d));
-                                                    ag.setAge(0);
-                                                    p.getLocation().add(x,0,z).getBlock().setBlockData(ag);
-                                                }
-                                            }
-                                        }
-                                        break;
-                                    case "schnellerlaufen":
-                                        p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), "schnellerlaufennum"), PersistentDataType.INTEGER,
-                                                p.isSprinting() ? p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), "schnellerlaufennum"), PersistentDataType.INTEGER,0)+10 : 0);
-                                        speedmult[0] +=p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "schnellerlaufennum"), PersistentDataType.INTEGER);
-                                        if(speedmult[0]>pas.getWerte().get("Stärke"))speedmult[0]=pas.getWerte().get("Stärke");
-                                        break;
-                                    case "fasterthenu":
-                                        speedmult[0]+=pas.getWerte().get("Stärke");
-                                        break;
-                                    case "speedwennmehrlebenimumgreiß":
-                                        for (Entity en : p.getNearbyEntities(pas.getWerte().get("Radius"),pas.getWerte().get("Radius"),pas.getWerte().get("Radius"))){
-                                            if(en instanceof Player && ((Player) en).getMaxHealth()>=(p.getMaxHealth()*1.25))
-                                                speedmult[0] +=pas.getWerte().get("Stärke");
-                                        }
-                                        break;
-                                }
-                            });
-
                             //wert zusammenrechnung
                             double audauernow=p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), "ausdauernow"), PersistentDataType.DOUBLE,0.0)+
                                     ((Maxmausdauer/100.0)*(utilitys.einstellungen.getAusreg()+sp.getAusreg()+p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), "ausdauerreg"), PersistentDataType.DOUBLE,0.0)+pasivausdauer[0]))
@@ -255,10 +160,328 @@ public final class Rassensystem extends JavaPlugin implements Listener {
                             double standmove = 0.2 * (movmal/100) * (speedmult[0] /100.0);
                             p.setWalkSpeed(standmove>1 ? 1 :(float) standmove);
 
-                            //get attack speed
-                            double standatackspeed = 4.0 * ((utilitys.einstellungen.getWaffengeschwindigkeit() + p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), "waffengeschwindigkeit"), PersistentDataType.DOUBLE,0.0)) / 100);
-                            standatackspeed *=(p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), "amspeeden"), PersistentDataType.INTEGER,100)/100.0); //wtf is das?
+                            //passive
+                            sp.getPassiven().stream().filter(pa -> p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), pa), PersistentDataType.BOOLEAN,true)).forEach(pa ->{
+                                //pa ist erkennung
+                                if(utilitys.passiveliste.containsKey(pa)){
+                                    Passive pas =utilitys.passiveliste.get(pa);
+                                    switch (pa){
+                                        case "flug":
+                                            if(p.isGliding()){
+                                                p.setAllowFlight(false);
+                                                if(p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE)>=pas.getWerte().get("Kosten")) {
+                                                    p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE,
+                                                            p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE)-pas.getWerte().get("Kosten"));
+                                                } else {
+                                                    p.setGliding(false);
+                                                    p.setAllowFlight(true);
+                                                }
+                                                utilitys.showbar(p,20);
+                                            } else if(p.isOnGround()){
+                                                p.setAllowFlight(true);
+                                            }
+                                            break;
+                                        case "nachtsicht":
+                                            p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION,20*15,0,false,false));
+                                            break;
+                                        case "wasseratmen":
+                                            if(p.getLocation().getBlock().getType().equals(Material.WATER))p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING,20*3,0,false,false));
+                                            break;
+                                        case "unterwassersspeed":
+                                            if(p.getLocation().getBlock().getType().equals(Material.WATER))p.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE,20*3,0,false,false));
+                                            break;
+                                        case "federfall":
+                                            if(p.getLocation().subtract(0,1,0).getBlock().getType().equals(Material.AIR) && p.getLocation().subtract(0,2,0).getBlock().getType().equals(Material.AIR)
+                                                    && p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE)>=pas.getWerte().get("Kosten")) {
+                                                p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE,
+                                                        p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE)-pas.getWerte().get("Kosten"));
+                                                p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING,20*2,0,false,false));
+                                                utilitys.showbar(p,20);
+                                            }
+                                            break;
+                                        case "schattenstand":
+                                            if(p.getLocation().getBlock().getLightLevel()<=7 && utilitys.timemap.containsKey(p.getUniqueId().toString())
+                                                    && utilitys.timemap.get(p.getUniqueId().toString())+(pas.getWerte().get("Stillstehedauer")*1000)<=System.currentTimeMillis()
+                                                    && p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE)>=pas.getWerte().get("Kosten")){
+                                                p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE,
+                                                        p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE)-pas.getWerte().get("Kosten"));
+                                                p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY,20*2,0,false,false));
+                                                utilitys.showbar(p,20);
+                                            }
+                                            break;
+                                        case "schattenspeed":
+                                            if(p.getLocation().getBlock().getLightLevel()<=7)speedmult[0] += pas.getWerte().get("Stärke");
+                                            break;
+                                        case "doppelsprung":
+                                            p.setAllowFlight(true);
+                                            break;
+                                        case "mediation":
+                                            p.getNearbyEntities(1,1,1).stream().filter(ar -> ar instanceof ArmorStand && ((ArmorStand) ar).getPassengers().getFirst().equals(p) && ((ArmorStand) ar).getCustomName().equals("meditation")).findFirst().ifPresent(ar -> {
+                                                pasivausdauer[0] += pas.getWerte().get("Stärke");
+                                                passivleben[0] += pas.getWerte().get("Stärke");
+                                                pasivmana[0] += pas.getWerte().get("Stärke");
+                                            });
+                                            break;
+                                        case "autoernte":
+                                            for (int x = -pas.getWerte().get("größe"); x <= pas.getWerte().get("größe"); x++) {
+                                                for (int z = -pas.getWerte().get("größe"); z <= pas.getWerte().get("größe"); z++) {
+                                                    if(p.getLocation().add(x,0,z).getBlock().getBlockData() instanceof Ageable ag && ag.getAge()==ag.getMaximumAge()){
+                                                        if(!utilitys.kannpassive(p,pa))continue;
+                                                        p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE,
+                                                                p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE)-pas.getWerte().get("Kosten"));
+                                                        p.getWorld().spawnParticle(Particle.CLOUD,p.getLocation().add(x,0,z), 3, 0.3, 0.3, 0.3);
+                                                        p.getLocation().add(x,0,z).getBlock().getDrops().forEach(d -> p.getWorld().dropItemNaturally(p.getLocation(), d));
+                                                        ag.setAge(0);
+                                                        p.getLocation().add(x,0,z).getBlock().setBlockData(ag);
+                                                    }
+                                                }
+                                            }
+                                            break;
+                                        case "erdlaufer":
+                                            if(p.getLocation().subtract(0,1,0).getBlock().getType().equals(Material.GRASS_BLOCK) || p.getLocation().subtract(0,1,0).getBlock().getType().equals(Material.DIRT)){
+                                                speedmult[0] += pas.getWerte().get("Stärke");
+                                            }
+                                            break;
+                                        case "creaflug":
+                                            if(p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "infight"), PersistentDataType.DOUBLE)){
+                                                if(!utilitys.isair(p.getLocation(),2)){
+                                                    p.setFlySpeed(pas.getWerte().get("Geschwindigkeit")/100.0f);
+                                                    p.setAllowFlight(true);
+                                                    p.setFlying(true);
+                                                } else {
+                                                    p.setAllowFlight(false);
+                                                    p.setFlying(false);
+                                                }
+                                            } else if(!utilitys.isair(p.getLocation(),pas.getWerte().get("Reichweite"))){
+                                                p.setFlySpeed(pas.getWerte().get("Geschwindigkeit")/100.0f);
+                                                p.setAllowFlight(true);
+                                                p.setFlying(true);
+                                            } else {
+                                                p.setAllowFlight(false);
+                                                p.setFlying(false);
+                                            }
+                                            break;
+                                        case "steinschlager":
+                                            if(p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(),"steinschlagerwert"), PersistentDataType.INTEGER,0)>0){
+                                                p.addPotionEffect(new PotionEffect(PotionEffectType.HASTE,20*3,(int) (p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(),"steinschlagerwert"), PersistentDataType.INTEGER)/10),false,false));
+                                                p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(),"steinschlagerwert"), PersistentDataType.INTEGER,
+                                                        Math.min(p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(),"steinschlagerwert"), PersistentDataType.INTEGER,0)-1,0));
+                                            }
+                                            break;
+                                        case "steinlaufer":
+                                            if(stein.isstein(p.getLocation().subtract(0,1,0).getBlock().getType())){
+                                                speedmult[0] += pas.getWerte().get("Stärke");
+                                            }
+                                            break;
+                                        case "fastboot":
+                                            if(p.getVehicle() != null && p.getVehicle() instanceof Boat)p.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE,20*2,0,false,false));
+                                            break;
+                                        case "adrenalin":
+                                            if(p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "infight"), PersistentDataType.DOUBLE)){
+                                                pasivausdauer[0] += pas.getWerte().get("Stärke");
+                                                passivleben[0] += pas.getWerte().get("Stärke");
+                                                pasivmana[0] += pas.getWerte().get("Stärke");
+                                            }
+                                            break;
+                                        case "woodschläger":
+                                            if(p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(),"woodschlägererwert"), PersistentDataType.INTEGER,0)>0){
+                                                p.addPotionEffect(new PotionEffect(PotionEffectType.HASTE,20*3,(int) (p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(),"woodschlägererwert"), PersistentDataType.INTEGER)/10),false,false));
+                                                p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(),"woodschlägererwert"), PersistentDataType.INTEGER,
+                                                        Math.min(p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(),"woodschlägererwert"), PersistentDataType.INTEGER,0)-1,0));
+                                            }
+                                            break;
+                                        case "eisatem":
+                                        case "erdatem":
+                                        case "lufatem":
+                                        case "feueratem":
+                                            if(utilitys.kannpassive(p,pa) && p.isSneaking()){
+                                                if(p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), pa+"mak"), PersistentDataType.BOOLEAN)){
+                                                    p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE,
+                                                            p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE)-pas.getWerte().get("Kosten"));
+                                                    utilitys.showbar(p,20);
 
+                                                    Vector direction = p.getEyeLocation().getDirection().normalize().multiply(0.1); // adjust speed here
+                                                    for (double t = 0; t <= pas.getWerte().get("Reichweite"); t += 0.2) {
+                                                        Location loc = p.getEyeLocation().clone().add(p.getEyeLocation().getDirection().normalize().multiply(t));
+
+                                                        Particle particle = switch (pa) {
+                                                            case "eisatem" -> Particle.SNOWFLAKE;
+                                                            case "erdatem" -> Particle.ASH;
+                                                            case "lufatem" -> Particle.WHITE_SMOKE;
+                                                            default -> Particle.FLAME;
+                                                        };
+
+                                                        // Use the overload with direction vector
+                                                        p.getWorld().spawnParticle(particle, loc, 0, direction.getX(), direction.getY(), direction.getZ(), 1);
+                                                    }
+
+                                                    //loock at block
+                                                    if(p.getTargetBlockExact(pas.getWerte().get("Reichweite"))!=null && !p.getTargetBlockExact(pas.getWerte().get("Reichweite")).equals(Material.AIR) ){
+                                                        Block b = p.getTargetBlockExact(pas.getWerte().get("Reichweite"));
+                                                        switch (pa){
+                                                            case "eisatem":
+                                                                if(b.getType().equals(Material.SNOW)){
+                                                                    Snow snow = (Snow) b.getBlockData();
+                                                                    snow.setLayers(Math.min(snow.getLayers() + 1, 8));
+                                                                    b.setBlockData(snow);
+                                                                } else if(b.getRelative(BlockFace.UP).getType().equals(Material.AIR)){
+                                                                    b.getRelative(BlockFace.UP).setType(Material.SNOW);
+                                                                }
+                                                                break;
+                                                            case "feueratem":
+                                                                if(b.getRelative(BlockFace.UP).getType().equals(Material.AIR))b.getRelative(BlockFace.UP).setType(Material.FIRE);
+                                                                break;
+                                                        }
+                                                    }
+
+                                                    //lock at entity
+                                                    p.getNearbyEntities(pas.getWerte().get("Reichweite"),pas.getWerte().get("Reichweite"),pas.getWerte().get("Reichweite")).stream()
+                                                            .filter(e -> e instanceof LivingEntity &&
+                                                                    p.getEyeLocation().getDirection().normalize().angle(e.getLocation().add(0, e.getHeight() / 2.0, 0).toVector().subtract(p.getEyeLocation().toVector()).normalize()) < 0.7).forEach(e -> {
+                                                                        LivingEntity l =(LivingEntity) e;
+                                                                        switch (pa){
+                                                                            case "eisatem":
+                                                                                l.setFreezeTicks(180);
+                                                                                l.damage(pas.getWerte().get("Schaden"),p);
+                                                                                break;
+                                                                            case "erdatem":
+                                                                                l.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS,40,
+                                                                                        l.getPotionEffect(PotionEffectType.SLOWNESS)==null ? 0 : Math.min(l.getPotionEffect(PotionEffectType.SLOWNESS).getAmplifier()+2,6)
+                                                                                        ,false, false));
+                                                                                break;
+                                                                            case "lufatem":
+                                                                                l.setVelocity(new Vector(
+                                                                                        p.getLocation().getDirection().normalize().getX() * 1.0,
+                                                                                        -1,
+                                                                                        p.getLocation().getDirection().normalize().getZ() * 1.0
+                                                                                ));
+                                                                                break;
+                                                                            case "feueratem":
+                                                                                l.setFireTicks(20 * 3);
+                                                                                l.damage(pas.getWerte().get("Schaden"),p);
+                                                                                break;
+                                                                        }
+                                                                    }
+                                                            );
+                                                } else {
+                                                    p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"), PersistentDataType.INTEGER,
+                                                            Math.min(p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"), PersistentDataType.INTEGER,0)+1, pas.getWerte().get("Dauer")));
+                                                    utilitys.showcustembar(p,20,Bukkit.createBossBar(""+
+                                                                    (pas.getWerte().get("Dauer")==p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"), PersistentDataType.INTEGER) ? "Bereit"
+                                                                            : (pas.getWerte().get("Dauer")-p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"), PersistentDataType.INTEGER))), BarColor.GREEN, BarStyle.SEGMENTED_20)
+                                                            ,p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"), PersistentDataType.INTEGER),pas.getWerte().get("Dauer"));
+                                                }
+                                            } else {
+                                                p.getPersistentDataContainer().remove(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"));
+                                                p.getPersistentDataContainer().remove(new NamespacedKey(Rassensystem.getPlugin(), pa+"mak"));
+                                            }
+                                            break;
+                                        case "schattenklon":
+                                            if(utilitys.kannpassive(p,pa) && p.isSneaking() && !p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), pa+"mak"), PersistentDataType.BOOLEAN)){
+                                                p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"), PersistentDataType.INTEGER,
+                                                        Math.min(p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"), PersistentDataType.INTEGER,0)+1, pas.getWerte().get("Dauer")));
+                                                utilitys.showcustembar(p,20,Bukkit.createBossBar(""+
+                                                                (pas.getWerte().get("Dauer")==p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"), PersistentDataType.INTEGER) ? "Bereit"
+                                                                        : (pas.getWerte().get("Dauer")-p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"), PersistentDataType.INTEGER))), BarColor.GREEN, BarStyle.SEGMENTED_20)
+                                                        ,p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"), PersistentDataType.INTEGER),pas.getWerte().get("Dauer"));
+                                            } else if (p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), pa+"mak"), PersistentDataType.BOOLEAN)) {
+                                                if(!utilitys.kannpassive(p,pa) || !p.isSneaking()){
+                                                    p.getPersistentDataContainer().remove(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"));
+                                                    p.getPersistentDataContainer().remove(new NamespacedKey(Rassensystem.getPlugin(), pa+"mak"));
+                                                    break;
+                                                }
+                                                utilitys.showbar(p,20);
+                                                p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY,20*2,0,false,false));
+                                                p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE,
+                                                        p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE)-pas.getWerte().get("Kosten"));
+                                            } else {
+                                                p.getPersistentDataContainer().remove(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"));
+                                                p.getPersistentDataContainer().remove(new NamespacedKey(Rassensystem.getPlugin(), pa+"mak"));
+                                            }
+                                            break;
+                                        case "huntersmark":
+                                            Entity et = p.getWorld().rayTraceEntities(p.getEyeLocation(),p.getEyeLocation().getDirection(), 30,entity -> !entity.equals(p))!=null ?
+                                                    p.getWorld().rayTraceEntities(p.getEyeLocation(),p.getEyeLocation().getDirection(), 30,entity -> !entity.equals(p)).getHitEntity() : null;
+                                            if(et!=null && et instanceof LivingEntity lv && !p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "infight"), PersistentDataType.DOUBLE)){
+                                                String uuid= p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"), PersistentDataType.STRING,"0;0").split(";")[1];
+                                                int num = Integer.valueOf(p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"), PersistentDataType.STRING,"0;0").split(";")[0]);
+                                                p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"), PersistentDataType.STRING,
+                                                        Math.min((uuid.equals(lv.getUniqueId().toString()) ?
+                                                                num+1 : 0), pas.getWerte().get("Dauer"))+";"+lv.getUniqueId().toString());
+                                                num = Integer.valueOf(p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"), PersistentDataType.STRING,"0;0").split(";")[0]);
+                                                utilitys.showcustembar(p,20,Bukkit.createBossBar(""+
+                                                                (pas.getWerte().get("Dauer")==num ?
+                                                        "§c<"+(int) lv.getHealth()+"> "+
+                                                        "§a<"+lv.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), "ausdauernow"), PersistentDataType.DOUBLE,0.0).intValue()+"> "+
+                                                                "§9<"+lv.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), "mananow"), PersistentDataType.DOUBLE,0.0).intValue()+"> "
+                                                                        : (pas.getWerte().get("Dauer")-num)), BarColor.GREEN, BarStyle.SEGMENTED_20)
+                                                        ,num,pas.getWerte().get("Dauer"));
+                                            } else {
+                                                p.getPersistentDataContainer().remove(new NamespacedKey(Rassensystem.getPlugin(), pa+"mak"));
+                                                p.getPersistentDataContainer().remove(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"));
+                                            }
+                                            break;
+                                        case "jugment":
+                                            if(utilitys.kannpassive(p,pa) && (p.isSneaking() || p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), pa+"mak"), PersistentDataType.BOOLEAN))){
+                                                if(p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), pa+"mak"), PersistentDataType.BOOLEAN)){
+                                                    p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE,
+                                                            p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), utilitys.Kostenwert(p)+"now"), PersistentDataType.DOUBLE)-pas.getWerte().get("Kosten"));
+                                                    utilitys.showbar(p,20);
+                                                    p.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 20*2, 0,false,false));
+                                                } else {
+                                                    p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"), PersistentDataType.INTEGER,
+                                                            Math.min(p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"), PersistentDataType.INTEGER,0)+1, pas.getWerte().get("Dauer")));
+                                                    utilitys.showcustembar(p,20,Bukkit.createBossBar(""+
+                                                                    (pas.getWerte().get("Dauer")==p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"), PersistentDataType.INTEGER) ? "Bereit"
+                                                                            : (pas.getWerte().get("Dauer")-p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"), PersistentDataType.INTEGER))), BarColor.GREEN, BarStyle.SEGMENTED_20)
+                                                            ,p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"), PersistentDataType.INTEGER),pas.getWerte().get("Dauer"));
+                                                }
+                                            } else {
+                                                p.getPersistentDataContainer().remove(new NamespacedKey(Rassensystem.getPlugin(), pa+"mak"));
+                                                p.getPersistentDataContainer().remove(new NamespacedKey(Rassensystem.getPlugin(), pa+"d"));
+                                            }
+                                            break;
+
+
+
+
+
+
+
+                                        case "schnellerlaufen":
+                                            p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), "schnellerlaufennum"), PersistentDataType.INTEGER,
+                                                    p.isSprinting() ? p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), "schnellerlaufennum"), PersistentDataType.INTEGER,0)+10 : 0);
+                                            speedmult[0] +=p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "schnellerlaufennum"), PersistentDataType.INTEGER);
+                                            if(speedmult[0]>pas.getWerte().get("Stärke"))speedmult[0]=pas.getWerte().get("Stärke");
+                                            break;
+                                        case "fasterthenu":
+                                            speedmult[0]+=pas.getWerte().get("Stärke");
+                                            break;
+                                        case "speedwennmehrlebenimumgreiß":
+                                            for (Entity en : p.getNearbyEntities(pas.getWerte().get("Radius"),pas.getWerte().get("Radius"),pas.getWerte().get("Radius"))){
+                                                if(en instanceof Player && ((Player) en).getMaxHealth()>=(p.getMaxHealth()*1.25))
+                                                    speedmult[0] +=pas.getWerte().get("Stärke");
+                                            }
+                                            break;
+                                    }
+                                } else sp.getPassiven().remove(pa);
+                            });
+
+                            //passive verwirung tick
+                            if(p.getPersistentDataContainer().has(new NamespacedKey(Rassensystem.getPlugin(), "verwirrungpassiv"), PersistentDataType.INTEGER)){
+                                p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), "verwirrungpassiv"), PersistentDataType.INTEGER,
+                                        p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "verwirrungpassiv"), PersistentDataType.INTEGER)-1);
+                                if(p.getPersistentDataContainer().get(new NamespacedKey(Rassensystem.getPlugin(), "verwirrungpassiv"), PersistentDataType.INTEGER)<=0)p.getPersistentDataContainer().remove(new NamespacedKey(Rassensystem.getPlugin(), "verwirrungpassiv"));
+                            }
+
+                            //get attack speed
+                            double standatackspeed = 4.0 * ((utilitys.einstellungen.getWaffengeschwindigkeit() + p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), "waffengeschwindigkeit"), PersistentDataType.DOUBLE,0.0)
+                                    +p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), "schnellschlag"), PersistentDataType.INTEGER,0)) / 100);
+
+                            //schnellschlag passive
+                            p.getPersistentDataContainer().set(new NamespacedKey(Rassensystem.getPlugin(), "schnellschlag"), PersistentDataType.INTEGER,
+                                    p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), "schnellschlag"), PersistentDataType.INTEGER,0)-1 < 0
+                                            ? 0 : p.getPersistentDataContainer().getOrDefault(new NamespacedKey(Rassensystem.getPlugin(), "schnellschlag"), PersistentDataType.INTEGER,0)-1);
                             p.getAttribute(Attribute.ATTACK_SPEED).setBaseValue(standatackspeed);
                             p.getAttribute(Attribute.SCALE).setBaseValue(sp.getGrose());
 
@@ -305,6 +528,8 @@ public final class Rassensystem extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(new guiclicker(),this);
         getCommand("spezieseditor").setExecutor(new openeditorcommand());
         getCommand("givespezies").setExecutor(new getrasse());
+        getCommand("setspezies").setExecutor(new setrasse());
+
 
         extras.adminlist.add("COMMAND_BLOCK;Grund Auswahl;27");
         extras.permisionlist.add("Spezienspezialist");
@@ -326,6 +551,9 @@ public final class Rassensystem extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(new schatten(),this);
         Bukkit.getPluginManager().registerEvents(new licht(),this);
         Bukkit.getPluginManager().registerEvents(new wald(),this);
+        Bukkit.getPluginManager().registerEvents(new blut(),this);
+        Bukkit.getPluginManager().registerEvents(new stein(),this);
+        Bukkit.getPluginManager().registerEvents(new utils(),this);
 
     }
 
@@ -339,6 +567,7 @@ public final class Rassensystem extends JavaPlugin implements Listener {
         utilitys.savepassive();
 
     }
+
 
     public static Rassensystem getPlugin() {
         return plugin;

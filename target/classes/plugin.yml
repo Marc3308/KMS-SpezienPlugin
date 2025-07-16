@@ -15,3 +15,6 @@ commands:
   spezieseditor:
     description: opens the spezien editor
     permission: Spezienspezialist
+  setspezies:
+    description: sets the spezies of a player
+    permission: op
